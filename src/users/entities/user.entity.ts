@@ -13,60 +13,58 @@ import { UserRole } from '../types/user.enum';
 import { USER_CONSTANTS } from '../types/user.constants';
 
 @Entity('users')
-@Index(['email'], { unique: true })
 @Index(['isActive'])
 @Index(['role'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ 
-    unique: true, 
+  @Column({
+    unique: true,
     length: 100,
-    comment: 'Email único del usuario'
+    comment: 'Email único del usuario',
   })
-  @Index()
   email: string;
 
-  @Column({ 
+  @Column({
     length: 255,
-    comment: 'Contraseña encriptada del usuario'
+    comment: 'Contraseña encriptada del usuario',
   })
   password: string;
 
-  @Column({ 
+  @Column({
     length: USER_CONSTANTS.NAME.MAX_LENGTH,
-    comment: 'Nombre del usuario'
+    comment: 'Nombre del usuario',
   })
   firstName: string;
 
-  @Column({ 
+  @Column({
     length: USER_CONSTANTS.NAME.MAX_LENGTH,
-    comment: 'Apellido del usuario'
+    comment: 'Apellido del usuario',
   })
   lastName: string;
 
-  @Column({ 
+  @Column({
     default: true,
-    comment: 'Estado activo/inactivo del usuario'
+    comment: 'Estado activo/inactivo del usuario',
   })
   isActive: boolean;
 
-  @Column({ 
-    type: 'enum', 
-    enum: UserRole, 
+  @Column({
+    type: 'enum',
+    enum: UserRole,
     default: UserRole.USER,
-    comment: 'Rol del usuario en el sistema'
+    comment: 'Rol del usuario en el sistema',
   })
   role: UserRole;
 
   @CreateDateColumn({
-    comment: 'Fecha de creación del registro'
+    comment: 'Fecha de creación del registro',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    comment: 'Fecha de última actualización del registro'
+    comment: 'Fecha de última actualización del registro',
   })
   updatedAt: Date;
 
