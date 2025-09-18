@@ -1,60 +1,269 @@
+# 🌴 Guana Vive Backend
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  Backend API para la aplicación web <strong>Guana Vive</strong>, una plataforma dedicada a promocionar y adquirir cultura guanacasteca por medio de anuncios creados por los usuarios.
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 📖 Descripción
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Guana Vive** es una aplicación web que permite a los usuarios crear, publicar y descubrir anuncios relacionados con la rica cultura de Guanacaste, Costa Rica. A través de esta plataforma, los usuarios pueden promocionar eventos culturales, productos artesanales, servicios tradicionales, y experiencias auténticas que representen la esencia guanacasteca.
 
-## Project setup
+### 🎯 Objetivos del Proyecto
 
-```bash
-$ pnpm install
+- **Promocionar la cultura guanacasteca** a través de una plataforma digital moderna
+- **Facilitar la conexión** entre proveedores y consumidores de cultura local
+- **Preservar y difundir** las tradiciones y costumbres de Guanacaste
+- **Generar oportunidades económicas** para emprendedores culturales locales
+
+### 🎯 Objetivos del Proyecto
+
+- **Promocionar la cultura guanacasteca** a través de una plataforma digital moderna
+- **Facilitar la conexión** entre proveedores y consumidores de cultura local
+- **Preservar y difundir** las tradiciones y costumbres de Guanacaste
+- **Generar oportunidades económicas** para emprendedores culturales locales
+
+## 🚀 Características Principales
+
+### 👥 Sistema de Usuarios
+- Registro y autenticación segura con JWT
+- Perfiles de usuario personalizables
+- Roles de usuario (user/admin)
+- Gestión de sesiones
+
+### 📢 Sistema de Anuncios (Próximamente)
+- Creación y publicación de anuncios culturales
+- Categorías: eventos, productos, servicios, experiencias
+- Búsqueda y filtrado avanzado
+- Sistema de favoritos y recomendaciones
+
+### 🏛️ Categorías Culturales
+- **Eventos**: Festivales, conciertos, celebraciones tradicionales
+- **Gastronomía**: Comida típica, restaurantes, recetas tradicionales
+- **Artesanías**: Productos hechos a mano, arte local
+- **Música y Danza**: Presentaciones folclóricas, clases de baile
+- **Turismo Cultural**: Tours, sitios históricos, experiencias auténticas
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Framework**: NestJS con TypeScript
+- **Base de Datos**: PostgreSQL
+- **ORM**: TypeORM
+- **Autenticación**: JWT + bcrypt
+- **Validación**: class-validator
+- **Contenización**: Docker & Docker Compose
+- **Gestión de Paquetes**: pnpm
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── config/           # Configuraciones (DB, JWT, etc.)
+├── users/            # Módulo de usuarios
+│   ├── dto/          # Data Transfer Objects
+│   ├── entities/     # Entidades de base de datos
+│   ├── types/        # Tipos, interfaces y enums
+│   └── ...
+├── app.module.ts     # Módulo principal
+└── main.ts          # Punto de entrada
 ```
 
-## Compile and run the project
+## ⚙️ Configuración del Proyecto
 
+## ⚙️ Configuración del Proyecto
+
+### 📋 Prerrequisitos
+
+- Node.js (v18 o superior)
+- pnpm
+- Docker y Docker Compose
+- PostgreSQL (opcional si usas Docker)
+
+### 🔧 Instalación
+
+1. **Clonar el repositorio**
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+git clone https://github.com/VictorJB16/guana-vive-backend.git
+cd guana-vive-backend
 ```
 
-## Run tests
+2. **Instalar dependencias**
+```bash
+pnpm install
+```
+
+3. **Configurar variables de entorno**
+```bash
+cp .env.example .env
+# Editar .env con tus configuraciones
+```
+
+4. **Levantar la base de datos con Docker**
+```bash
+docker-compose up -d
+```
+
+5. **Ejecutar migraciones** (próximamente)
+```bash
+pnpm run migration:run
+```
+
+### 🚀 Ejecución
 
 ```bash
-# unit tests
-$ pnpm run test
+# Desarrollo
+pnpm run start:dev
 
-# e2e tests
-$ pnpm run test:e2e
+# Producción
+pnpm run start:prod
+```
 
-# test coverage
-$ pnpm run test:cov
+## 🔌 API Endpoints
+
+### 👤 Usuarios (`/users`)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/users` | Crear usuario |
+| GET | `/users` | Listar usuarios con filtros |
+| GET | `/users/:id` | Obtener usuario por ID |
+| GET | `/users/email/:email` | Obtener usuario por email |
+| PATCH | `/users/:id` | Actualizar usuario |
+| PATCH | `/users/:id/change-password` | Cambiar contraseña |
+| PATCH | `/users/:id/toggle-status` | Activar/desactivar usuario |
+| DELETE | `/users/:id` | Eliminar usuario |
+| POST | `/users/validate` | Validar credenciales |
+| POST | `/users/login` | Iniciar sesión |
+
+## 🧪 Testing
+
+```bash
+## 🧪 Testing
+
+```bash
+# Tests unitarios
+pnpm run test
+
+# Tests e2e
+pnpm run test:e2e
+
+# Cobertura de tests
+pnpm run test:cov
+```
+
+## 📊 Base de Datos
+
+### 🏗️ Esquema Actual
+
+#### Tabla `users`
+- `id` (UUID, PK)
+- `email` (VARCHAR, UNIQUE)
+- `password` (VARCHAR, hasheada)
+- `firstName` (VARCHAR)
+- `lastName` (VARCHAR)
+- `role` (ENUM: 'user', 'admin')
+- `isActive` (BOOLEAN)
+- `createdAt` (TIMESTAMP)
+- `updatedAt` (TIMESTAMP)
+
+### 🔄 Migraciones
+
+```bash
+# Generar migración
+pnpm run migration:generate -- src/migrations/MigrationName
+
+# Ejecutar migraciones
+pnpm run migration:run
+
+# Revertir migración
+pnpm run migration:revert
+```
+
+## 🌍 Variables de Entorno
+
+```env
+# Base de datos
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=password
+DATABASE_NAME=guana_vive_db
+
+# Aplicación
+PORT=3000
+NODE_ENV=development
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRES_IN=1d
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
+```
+
+## 🗺️ Roadmap
+
+### ✅ Fase 1 - Fundación (Completada)
+- [x] Configuración inicial del proyecto
+- [x] Sistema de usuarios completo
+- [x] Autenticación JWT
+- [x] Base de datos PostgreSQL
+- [x] Documentación base
+
+### 🚧 Fase 2 - Sistema de Anuncios (En Desarrollo)
+- [ ] Modelo de anuncios
+- [ ] CRUD de anuncios
+- [ ] Sistema de categorías
+- [ ] Carga de imágenes
+- [ ] Sistema de búsqueda
+
+### 📅 Fase 3 - Funcionalidades Avanzadas
+- [ ] Sistema de comentarios y valoraciones
+- [ ] Notificaciones
+- [ ] Sistema de mensajería
+- [ ] Geolocalización
+- [ ] Dashboard administrativo
+
+### 🎨 Fase 4 - Mejoras UX/UI
+- [ ] API de recomendaciones
+- [ ] Estadísticas y analytics
+- [ ] Integración con redes sociales
+- [ ] Sistema de reportes
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 👨‍💻 Autor
+
+**Victor Bustos** - [VictorJB16](https://github.com/VictorJB16)
+
+## 🙏 Agradecimientos
+
+- Inspirado en la rica cultura de Guanacaste, Costa Rica
+- Construido con amor por la preservación cultural
+- Dedicado a todos los guanacastecos que mantienen vivas sus tradiciones
+
+---
+
+<p align="center">
+  <strong>¡Pura Vida! 🇨🇷</strong><br>
+  Hecho con ❤️ para promover la cultura guanacasteca
+</p>
 ```
 
 ## Deployment
