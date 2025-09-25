@@ -9,6 +9,13 @@ export type UserResponse = {
   lastName: string;
   isActive: boolean;
   role: string;
+  phone?: string;
+  avatar?: string;
+  bio?: string;
+  dateOfBirth?: Date;
+  address?: string;
+  city?: string;
+  country?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -71,4 +78,21 @@ export type UserQueryParams = {
   role?: 'user' | 'admin';
   isActive?: boolean;
   search?: string;
+};
+
+export type ProfileResponse = {
+  success: boolean;
+  data: UserResponse;
+};
+
+export type UpdateProfileResponse = {
+  success: boolean;
+  message: string;
+  data: UserResponse;
+};
+
+export type UpdateAvatarResponse = {
+  success: boolean;
+  message: string;
+  data: UserResponse;
 };
