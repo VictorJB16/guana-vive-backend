@@ -1,54 +1,63 @@
-# 🌴 Guana Vive Backend
+# 🦎 Guana Vive Backend
 
 <p align="center">
   <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
 </p>
 
 <p align="center">
-  Backend API para la aplicación web <strong>Guana Vive</strong>, una plataforma dedicada a promocionar y adquirir cultura guanacasteca por medio de anuncios creados por los usuarios.
+  Backend API construido con <strong>NestJS</strong>, <strong>TypeScript</strong> y <strong>PostgreSQL</strong> que implementa un sistema completo de autenticación JWT y gestión de usuarios para la plataforma cultural guanacasteca.
 </p>
 
-## 📖 Descripción
+## � Estado Actual del Proyecto - ✅ **MVP COMPLETO**
 
-**Guana Vive** es una aplicación web que permite a los usuarios crear, publicar y descubrir anuncios relacionados con la rica cultura de Guanacaste, Costa Rica. A través de esta plataforma, los usuarios pueden promocionar eventos culturales, productos artesanales, servicios tradicionales, y experiencias auténticas que representen la esencia guanacasteca.
+```mermaid
+graph TB
+    A[🔐 Sistema de Autenticación] --> B[✅ Registro de Usuarios]
+    A --> C[✅ Login con JWT]
+    A --> D[✅ Refresh Tokens]
+    A --> E[✅ Validación de Tokens]
+    A --> F[✅ Endpoints Protegidos]
+    
+    G[👥 Gestión de Usuarios] --> H[✅ CRUD Usuarios]
+    G --> I[✅ Listado Paginado]
+    G --> J[✅ Validación de Datos]
+    G --> K[✅ Encriptación BCrypt]
+    
+    L[�️ Arquitectura] --> M[✅ Módulos Separados]
+    L --> N[✅ TypeScript Tipado]
+    L --> O[✅ Docker Ready]
+    L --> P[✅ Probado y Funcional]
+```
 
-### 🎯 Objetivos del Proyecto
+## 🎯 Características Implementadas y Probadas
 
-- **Promocionar la cultura guanacasteca** a través de una plataforma digital moderna
-- **Facilitar la conexión** entre proveedores y consumidores de cultura local
-- **Preservar y difundir** las tradiciones y costumbres de Guanacaste
-- **Generar oportunidades económicas** para emprendedores culturales locales
+### 🔒 **Sistema de Autenticación JWT - FUNCIONAL**
+- ✅ **Registro de usuarios** con validación de email único
+- ✅ **Login seguro** con contraseñas encriptadas (bcrypt)
+- ✅ **JWT Access Tokens** (15m de duración) 
+- ✅ **Refresh Tokens** (7d de duración)
+- ✅ **Validación de tokens** con guards automáticos
+- ✅ **Endpoint `/auth/me`** para perfil del usuario
+- ✅ **Arquitectura separada** Auth ↔ Users
 
-### 🎯 Objetivos del Proyecto
+### � **Gestión de Usuarios - PROBADO**
+- ✅ **CRUD completo** de usuarios
+- ✅ **Listado paginado** con filtros avanzados
+- ✅ **Protección JWT** en endpoints sensibles
+- ✅ **Roles de usuario** (USER, ADMIN)
+- ✅ **Validación automática** de datos de entrada
+- ✅ **Respuestas tipadas** sin información sensible
 
-- **Promocionar la cultura guanacasteca** a través de una plataforma digital moderna
-- **Facilitar la conexión** entre proveedores y consumidores de cultura local
-- **Preservar y difundir** las tradiciones y costumbres de Guanacaste
-- **Generar oportunidades económicas** para emprendedores culturales locales
-
-## 🚀 Características Principales
-
-### 👥 Sistema de Usuarios
-- Registro y autenticación segura con JWT
-- Perfiles de usuario personalizables
-- Roles de usuario (user/admin)
-- Gestión de sesiones
-
-### 📢 Sistema de Anuncios (Próximamente)
-- Creación y publicación de anuncios culturales
-- Categorías: eventos, productos, servicios, experiencias
-- Búsqueda y filtrado avanzado
-- Sistema de favoritos y recomendaciones
-
-### 🏛️ Categorías Culturales
-- **Eventos**: Festivales, conciertos, celebraciones tradicionales
-- **Gastronomía**: Comida típica, restaurantes, recetas tradicionales
-- **Artesanías**: Productos hechos a mano, arte local
-- **Música y Danza**: Presentaciones folclóricas, clases de baile
-- **Turismo Cultural**: Tours, sitios históricos, experiencias auténticas
+### 🏛️ **Arquitectura Clean & Escalable**
+- ✅ **Separación total** de responsabilidades 
+- ✅ **TypeScript 100%** sin uso de `any`
+- ✅ **Interfaces consistentes** para todas las respuestas
+- ✅ **Logging detallado** para debugging
+- ✅ **Manejo de errores** robusto con códigos HTTP apropiados
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -59,6 +68,47 @@
 - **Validación**: class-validator
 - **Contenización**: Docker & Docker Compose
 - **Gestión de Paquetes**: pnpm
+
+## 🏗️ Arquitectura - Sistema Refactorizado ✅
+
+El proyecto sigue una **arquitectura modular limpia** con **separación clara de responsabilidades**:
+
+```mermaid
+graph TB
+    subgraph "🔒 Auth Module (Autenticación)"
+        AC[AuthController] --> AS[AuthService]
+        AS --> JWT[JWT Strategy]
+        AS --> RFT[Refresh Token Strategy] 
+        AS --> Guards[Guards]
+    end
+
+    subgraph "👥 Users Module (CRUD Usuarios)"  
+        UC[UsersController] --> US[UsersService]
+        US --> UR[User Repository]
+        UR --> DB[(PostgreSQL)]
+    end
+
+    subgraph "🔐 Security Layer"
+        JWT --> Guards
+        Guards --> Middleware[Auth Middleware]
+    end
+
+    Client[Cliente] --> AC
+    Client --> UC
+    Guards -.-> UC
+    AS -.-> US
+    
+    style AC fill:#e1f5fe
+    style AS fill:#e8f5e8  
+    style US fill:#fff3e0
+    style DB fill:#f3e5f5
+```
+
+### **📂 Separación de Responsabilidades**
+- **🔒 Auth Module**: Solo autenticación (register, login, JWT)
+- **👥 Users Module**: Solo operaciones CRUD de usuarios
+- **🛡️ Guards**: Protección centralizada de rutas
+- **📊 DTOs**: Validación y tipado de datos de entrada/salida
 
 ## 📁 Estructura del Proyecto
 
@@ -141,16 +191,88 @@ pnpm run start:prod
 | POST | `/users/validate` | Validar credenciales |
 | POST | `/users/login` | Iniciar sesión |
 
-## 🧪 Testing
+## 🧪 Testing Manual - ✅ Verificado
+
+### **Endpoints de Autenticación Probados**
 
 ```bash
-## 🧪 Testing
+# 1. Registro de usuario (✅ FUNCIONA)
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@ejemplo.com",
+    "password": "password123",
+    "firstName": "Nombre",
+    "lastName": "Apellido"
+  }'
 
+# Respuesta exitosa:
+{
+  "success": true,
+  "message": "Usuario registrado exitosamente",
+  "user": {
+    "id": "9c7cb26a-d002-4352-8d92-35631c13932a",
+    "email": "usuario@ejemplo.com",
+    "firstName": "Nombre",
+    "lastName": "Apellido", 
+    "role": "user"
+  }
+}
+
+# 2. Login de usuario (✅ FUNCIONA)
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@ejemplo.com",
+    "password": "password123"
+  }'
+
+# Respuesta con tokens:
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": { /* datos del usuario */ }
+}
+
+# 3. Acceso a endpoints protegidos (✅ FUNCIONA)
+# Sin token → 401 Unauthorized
+curl -X GET http://localhost:3000/users
+{"message":"Unauthorized","statusCode":401}
+
+# Con token → 200 OK con datos
+curl -X GET http://localhost:3000/users \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Respuesta exitosa con paginación:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ce72f293-5003-413f-897a-9b1607532254",
+      "email": "maria@example.com",
+      "firstName": "Maria",
+      "lastName": "Gomez",
+      "isActive": true,
+      "role": "user",
+      "createdAt": "2025-09-25T11:46:31.032Z",
+      "updatedAt": "2025-09-25T11:46:31.032Z"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### **🔍 Tests Automatizados (Próximamente)**
 ```bash
 # Tests unitarios
 pnpm run test
 
-# Tests e2e
+# Tests e2e  
 pnpm run test:e2e
 
 # Cobertura de tests
