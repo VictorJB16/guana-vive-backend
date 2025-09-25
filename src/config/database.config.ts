@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 export default registerAs(
   'database',
   (): TypeOrmModuleOptions => {
-    const password = process.env.DB_PASSWORD || 'admin';
+    const password = process.env.DB_PASSWORD || '123456';
     
     console.log('Database config:', {
       host: process.env.DB_HOST || 'localhost',
