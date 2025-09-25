@@ -17,7 +17,7 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       DB_USERNAME: postgres
-      DB_PASSWORD: 123456
+      DB_PASSWORD: admin
       DB_NAME: guana_vive_db
     ports:
       - 3000:3000
@@ -35,7 +35,7 @@ services:
     environment:
       - POSTGRES_DB=guana_vive_db
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=123456
+      - POSTGRES_PASSWORD=admin
     expose:
       - 5432
     healthcheck:
