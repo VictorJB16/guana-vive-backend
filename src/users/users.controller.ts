@@ -13,14 +13,21 @@ import {
   Logger,
   ValidationPipe,
   UsePipes,
+  UseGuards,
+  Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { FileService } from './file.service';
+import { AuthService } from './auth.service';
 import {
   CreateUserDto,
   UpdateUserDto,
   ChangePasswordDto,
   LoginDto,
   ValidateUserDto,
+  UpdateProfileDto,
+  UploadAvatarDto,
 } from './dto';
 import {
   UserResponse,
@@ -38,13 +45,18 @@ import {
   UserRole,
 } from './types';
 import type { UserQueryParams } from './types';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly fileService: FileService,
+    private readonly authService: AuthService,
+  ) {}
 
   /**
    * Crear un nuevo usuario
@@ -95,6 +107,22 @@ export class UsersController {
         limit: result.meta.limit,
         totalPages: result.meta.totalPages,
       },
+    };
+  }
+
+  /**
+   * Obtener perfil del usuario autenticado
+   */
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Request() req: any): Promise<GetUserResponse> {
+    this.logger.log(`Getting profile for user ID: ${req.user.id}`);
+
+    const user = await this.usersService.getProfile(req.user.id);
+
+    return {
+      success: true,
+      data: user as UserResponse,
     };
   }
 
@@ -228,21 +256,78 @@ export class UsersController {
   }
 
   /**
-   * Login de usuario (alternativo al validate)
+   * Login de usuario con JWT
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<UserValidationResponse> {
+  async login(@Body() loginDto: LoginDto) {
     this.logger.log(`User login attempt for email: ${loginDto.email}`);
 
-    const user = await this.usersService.validateUser(
+    const user = await this.authService.validateUser(
       loginDto.email,
       loginDto.password,
     );
 
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    const result = await this.authService.login(user);
+    this.logger.log(`Login successful for user: ${user.email}, token generated`);
+    return result;
+  }
+
+  /**
+   * Actualizar perfil del usuario autenticado
+   */
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @Request() req: any,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<UpdateUserResponse> {
+    this.logger.log(`Updating profile for user ID: ${req.user.id}`);
+
+    const user = await this.usersService.updateProfile(
+      req.user.id,
+      updateProfileDto,
+    );
+
     return {
-      isValid: !!user,
-      user: user as UserResponse,
+      success: true,
+      message: 'Perfil actualizado exitosamente',
+      data: user as UserResponse,
+    };
+  }
+
+  /**
+   * Actualizar avatar del usuario autenticado
+   */
+  @Post('profile/avatar')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateAvatar(
+    @Request() req: any,
+    @Body() uploadAvatarDto: UploadAvatarDto,
+  ): Promise<UpdateUserResponse> {
+    this.logger.log(`Updating avatar for user ID: ${req.user.id}`);
+
+    // Validar y procesar la URL del avatar
+    const processedAvatarUrl = this.fileService.processAvatarUrl(
+      uploadAvatarDto.avatarUrl || '',
+      req.user.firstName,
+      req.user.lastName,
+    );
+
+    const user = await this.usersService.updateAvatar(
+      req.user.id,
+      processedAvatarUrl,
+    );
+
+    return {
+      success: true,
+      message: 'Avatar actualizado exitosamente',
+      data: user as UserResponse,
     };
   }
 }

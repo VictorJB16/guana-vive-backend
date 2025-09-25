@@ -58,6 +58,55 @@ export class User {
   })
   role: UserRole;
 
+  @Column({
+    length: 20,
+    nullable: true,
+    comment: 'Número de teléfono del usuario',
+  })
+  phone?: string;
+
+  @Column({
+    length: 500,
+    nullable: true,
+    comment: 'URL del avatar del usuario',
+  })
+  avatar?: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Biografía o descripción personal del usuario',
+  })
+  bio?: string;
+
+  @Column({
+    type: 'date',
+    nullable: true,
+    comment: 'Fecha de nacimiento del usuario',
+  })
+  dateOfBirth?: Date;
+
+  @Column({
+    length: 255,
+    nullable: true,
+    comment: 'Dirección del usuario',
+  })
+  address?: string;
+
+  @Column({
+    length: 100,
+    nullable: true,
+    comment: 'Ciudad del usuario',
+  })
+  city?: string;
+
+  @Column({
+    length: 100,
+    nullable: true,
+    comment: 'País del usuario',
+  })
+  country?: string;
+
   @CreateDateColumn({
     comment: 'Fecha de creación del registro',
   })

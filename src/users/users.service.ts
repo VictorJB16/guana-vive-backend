@@ -360,6 +360,86 @@ export class UsersService {
   }
 
   /**
+   * Obtiene el perfil completo de un usuario
+   */
+  async getProfile(userId: string): Promise<IUserWithoutPassword> {
+    this.logger.log(`Getting profile for user with ID: ${userId}`);
+    return await this.findOne(userId);
+  }
+
+  /**
+   * Actualiza el perfil de un usuario (solo campos de perfil)
+   */
+  async updateProfile(
+    userId: string,
+    updateProfileDto: any,
+  ): Promise<IUserWithoutPassword> {
+    this.logger.log(`Updating profile for user with ID: ${userId}`);
+
+    const user = await this.findUserByIdOrThrow(userId);
+
+    // Convertir dateOfBirth de string a Date si viene
+    if (updateProfileDto.dateOfBirth) {
+      updateProfileDto.dateOfBirth = new Date(updateProfileDto.dateOfBirth);
+    }
+
+    // Aplicar solo las actualizaciones de perfil permitidas
+    const allowedFields = [
+      'firstName',
+      'lastName',
+      'phone',
+      'bio',
+      'dateOfBirth',
+      'address',
+      'city',
+      'country',
+    ];
+
+    for (const field of allowedFields) {
+      if (updateProfileDto[field] !== undefined) {
+        user[field] = updateProfileDto[field];
+      }
+    }
+
+    try {
+      const updatedUser = await this.userRepository.save(user);
+      this.logger.log(`Profile updated successfully for user ID: ${userId}`);
+      return this.transformToSafeUser(updatedUser);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to update profile: ${errorMessage}`, errorStack);
+      throw new BadRequestException('Error al actualizar el perfil');
+    }
+  }
+
+  /**
+   * Actualiza el avatar de un usuario
+   */
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<IUserWithoutPassword> {
+    this.logger.log(`Updating avatar for user with ID: ${userId}`);
+
+    const user = await this.findUserByIdOrThrow(userId);
+    user.avatar = avatarUrl;
+
+    try {
+      const updatedUser = await this.userRepository.save(user);
+      this.logger.log(`Avatar updated successfully for user ID: ${userId}`);
+      return this.transformToSafeUser(updatedUser);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to update avatar: ${errorMessage}`, errorStack);
+      throw new BadRequestException('Error al actualizar el avatar');
+    }
+  }
+
+  /**
    * Transforma un usuario a su versión segura (sin contraseña)
    */
   private transformToSafeUser(user: User): IUserWithoutPassword {
