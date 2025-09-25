@@ -19,6 +19,7 @@ import {
   IFindUsersOptions,
   IPaginatedResponse,
   IUserWithoutPassword,
+  UpdateProfileDto,
   USER_ERROR_MESSAGES,
   USER_CONSTANTS,
 } from './types';
@@ -149,6 +150,31 @@ export class UsersService {
     }
 
     return includePassword ? user : this.transformToSafeUser(user);
+  }
+
+  /**
+   * Busca un usuario por email sin lanzar excepción si no existe
+   * Útil para verificaciones durante el registro
+   */
+  async findByEmailSafe(
+    email: string,
+    includePassword = false,
+  ): Promise<User | IUserWithoutPassword | null> {
+    this.logger.log(`Searching for user with email (safe): ${email}`);
+
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+
+      if (!user) {
+        this.logger.log(`User not found with email: ${email}`);
+        return null;
+      }
+
+      return includePassword ? user : this.transformToSafeUser(user);
+    } catch (error) {
+      this.logger.error(`Error searching user by email: ${email}`, error);
+      return null;
+    }
   }
 
   /**
@@ -372,7 +398,7 @@ export class UsersService {
    */
   async updateProfile(
     userId: string,
-    updateProfileDto: any,
+    updateProfileDto: UpdateProfileDto,
   ): Promise<IUserWithoutPassword> {
     this.logger.log(`Updating profile for user with ID: ${userId}`);
 
@@ -380,11 +406,13 @@ export class UsersService {
 
     // Convertir dateOfBirth de string a Date si viene
     if (updateProfileDto.dateOfBirth) {
-      updateProfileDto.dateOfBirth = new Date(updateProfileDto.dateOfBirth);
+      updateProfileDto.dateOfBirth = new Date(
+        updateProfileDto.dateOfBirth as string,
+      );
     }
 
     // Aplicar solo las actualizaciones de perfil permitidas
-    const allowedFields = [
+    const allowedFields: (keyof UpdateProfileDto)[] = [
       'firstName',
       'lastName',
       'phone',
@@ -396,8 +424,10 @@ export class UsersService {
     ];
 
     for (const field of allowedFields) {
-      if (updateProfileDto[field] !== undefined) {
-        user[field] = updateProfileDto[field];
+      const value = updateProfileDto[field];
+      if (value !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (user as any)[field] = value;
       }
     }
 
@@ -409,7 +439,10 @@ export class UsersService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(`Failed to update profile: ${errorMessage}`, errorStack);
+      this.logger.error(
+        `Failed to update profile: ${errorMessage}`,
+        errorStack,
+      );
       throw new BadRequestException('Error al actualizar el perfil');
     }
   }

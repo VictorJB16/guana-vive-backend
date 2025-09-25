@@ -15,17 +15,13 @@ import {
   UsePipes,
   UseGuards,
   Request,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { FileService } from './file.service';
-import { AuthService } from './auth.service';
 import {
   CreateUserDto,
   UpdateUserDto,
   ChangePasswordDto,
-  LoginDto,
-  ValidateUserDto,
   UpdateProfileDto,
   UploadAvatarDto,
 } from './dto';
@@ -37,7 +33,6 @@ import {
   PasswordChangeResponse,
   GetUsersResponse,
   GetUserResponse,
-  UserValidationResponse,
   IFindUsersOptions,
   USER_SUCCESS_MESSAGES,
   UserSortBy,
@@ -45,7 +40,7 @@ import {
   UserRole,
 } from './types';
 import type { UserQueryParams } from './types';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -55,14 +50,14 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly fileService: FileService,
-    private readonly authService: AuthService,
   ) {}
 
   /**
-   * Crear un nuevo usuario
+   * Crear un nuevo usuario (solo para administradores)
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateUserResponse> {
@@ -81,6 +76,7 @@ export class UsersController {
    * Obtener todos los usuarios con filtros y paginación
    */
   @Get()
+  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query() queryParams: UserQueryParams,
   ): Promise<GetUsersResponse> {
@@ -130,6 +126,7 @@ export class UsersController {
    * Obtener un usuario por ID
    */
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<GetUserResponse> {
@@ -147,6 +144,7 @@ export class UsersController {
    * Obtener un usuario por email
    */
   @Get('email/:email')
+  @UseGuards(JwtAuthGuard)
   async findByEmail(@Param('email') email: string): Promise<GetUserResponse> {
     this.logger.log(`Fetching user with email: ${email}`);
 
@@ -162,6 +160,7 @@ export class UsersController {
    * Actualizar un usuario
    */
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -181,6 +180,7 @@ export class UsersController {
    * Cambiar contraseña de un usuario
    */
   @Patch(':id/change-password')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async changePassword(
     @Param('id', ParseUUIDPipe) id: string,
@@ -200,6 +200,7 @@ export class UsersController {
    * Activar/desactivar un usuario
    */
   @Patch(':id/toggle-status')
+  @UseGuards(JwtAuthGuard)
   async toggleStatus(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<UpdateUserResponse> {
@@ -218,6 +219,7 @@ export class UsersController {
    * Eliminar un usuario
    */
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
@@ -230,51 +232,6 @@ export class UsersController {
       success: true,
       message: USER_SUCCESS_MESSAGES.USER_DELETED,
     };
-  }
-
-  /**
-   * Validar credenciales de usuario (para login)
-   */
-  @Post('validate')
-  @HttpCode(HttpStatus.OK)
-  async validateUser(
-    @Body() validateUserDto: ValidateUserDto,
-  ): Promise<UserValidationResponse> {
-    this.logger.log(
-      `Validating user credentials for email: ${validateUserDto.email}`,
-    );
-
-    const user = await this.usersService.validateUser(
-      validateUserDto.email,
-      validateUserDto.password,
-    );
-
-    return {
-      isValid: !!user,
-      user: user as UserResponse,
-    };
-  }
-
-  /**
-   * Login de usuario con JWT
-   */
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto) {
-    this.logger.log(`User login attempt for email: ${loginDto.email}`);
-
-    const user = await this.authService.validateUser(
-      loginDto.email,
-      loginDto.password,
-    );
-
-    if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
-    }
-
-    const result = await this.authService.login(user);
-    this.logger.log(`Login successful for user: ${user.email}, token generated`);
-    return result;
   }
 
   /**

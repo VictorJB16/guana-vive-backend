@@ -88,3 +88,14 @@ export interface IUserStats {
   adminUsers: number;
   regularUsers: number;
 }
+
+export interface UpdateProfileDto {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  bio?: string;
+  dateOfBirth?: Date | string;
+  address?: string;
+  city?: string;
+  country?: string;
+}
