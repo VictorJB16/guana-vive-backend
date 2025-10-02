@@ -53,6 +53,13 @@ export class Publication {
   })
   authorId: string;
 
+  @Column({
+    length: 500,
+    nullable: true,
+    comment: 'URL de la imagen principal de la publicación',
+  })
+  imageUrl?: string;
+
   @ManyToOne(() => User, { eager: true })
   @JoinColumn({ name: 'authorId' })
   author: User;

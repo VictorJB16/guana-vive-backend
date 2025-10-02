@@ -37,7 +37,8 @@ Content-Type: application/json
   "title": "Festival de Danza Folklórica",
   "content": "Este sábado se realizará el festival de danza folklórica en la plaza central...",
   "category": "danza",
-  "status": "borrador"
+  "status": "borrador",
+  "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop"
 }
 ```
 
@@ -46,6 +47,7 @@ Content-Type: application/json
 - `content`: Requerido, 10-5000 caracteres
 - `category`: Requerido, debe ser una categoría válida
 - `status`: Opcional, por defecto "borrador"
+- `imageUrl`: Opcional, debe ser una URL válida con protocolo HTTP/HTTPS
 
 **Response (201 Created):**
 ```json
@@ -304,7 +306,67 @@ Content-Type: application/json
 
 ---
 
-### 9. Eliminar Publicación
+### 9. Actualizar Imagen de Publicación
+Actualiza solo la imagen de una publicación. Solo el autor puede actualizar la imagen.
+
+**Endpoint:** `PATCH /publications/:id/image`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Imagen de la publicación actualizada exitosamente",
+  "data": {
+    "id": "uuid",
+    "title": "Festival de Danza Folklórica",
+    "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop",
+    ...
+  }
+}
+```
+
+---
+
+### 10. Eliminar Imagen de Publicación
+Elimina la imagen de una publicación. Solo el autor puede eliminar la imagen.
+
+**Endpoint:** `DELETE /publications/:id/image`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Imagen de la publicación eliminada exitosamente",
+  "data": {
+    "id": "uuid",
+    "title": "Festival de Danza Folklórica",
+    "imageUrl": null,
+    ...
+  }
+}
+```
+
+---
+
+### 11. Eliminar Publicación
 Elimina una publicación. Solo el autor puede eliminar su propia publicación.
 
 **Endpoint:** `DELETE /publications/:id`
@@ -349,7 +411,7 @@ Authorization: Bearer {token}
 
 ## Ejemplos de Uso
 
-### Crear publicación de gastronomía
+### Crear publicación de gastronomía con imagen
 ```bash
 curl -X POST http://localhost:3000/publications \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -358,7 +420,8 @@ curl -X POST http://localhost:3000/publications \
     "title": "Receta tradicional: Tamales de la abuela",
     "content": "Los tamales son un platillo tradicional...",
     "category": "gastronomia",
-    "status": "publicado"
+    "status": "publicado",
+    "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=600&fit=crop"
   }'
 ```
 
@@ -376,6 +439,22 @@ curl -X PATCH http://localhost:3000/publications/{id} \
     "title": "Nuevo título actualizado",
     "status": "publicado"
   }'
+```
+
+### Actualizar imagen de publicación
+```bash
+curl -X PATCH http://localhost:3000/publications/{id}/image \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop"
+  }'
+```
+
+### Eliminar imagen de publicación
+```bash
+curl -X DELETE http://localhost:3000/publications/{id}/image \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Eliminar publicación

@@ -5,6 +5,7 @@ import {
   MinLength,
   MaxLength,
   IsOptional,
+  IsUrl,
 } from 'class-validator';
 import { PublicationCategory, PublicationStatus } from '../types/publication.enum';
 import { PUBLICATION_CONSTANTS } from '../types/publication.constants';
@@ -44,5 +45,17 @@ export class CreatePublicationDto {
   })
   @IsOptional()
   status?: PublicationStatus;
+
+  @IsUrl(
+    {
+      protocols: ['http', 'https'],
+      require_protocol: true,
+    },
+    {
+      message: 'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
+    },
+  )
+  @IsOptional()
+  imageUrl?: string;
 }
 

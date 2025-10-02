@@ -33,6 +33,7 @@ export class CreatePublicationsTable1758760000000
         "category" "publication_category_enum" NOT NULL,
         "status" "publication_status_enum" NOT NULL DEFAULT 'borrador',
         "authorId" uuid NOT NULL,
+        "imageUrl" character varying(500),
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_publications_id" PRIMARY KEY ("id")

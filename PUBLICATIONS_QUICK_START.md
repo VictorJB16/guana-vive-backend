@@ -37,7 +37,7 @@ Guarda el `accessToken` que recibes en la respuesta.
 
 ## ✅ Pruebas de Endpoints
 
-### 1. Crear una publicación de Danza
+### 1. Crear una publicación de Danza con imagen
 ```bash
 curl -X POST http://localhost:3000/publications \
   -H "Authorization: Bearer TU_TOKEN_AQUI" \
@@ -46,11 +46,12 @@ curl -X POST http://localhost:3000/publications \
     "title": "Festival de Danza Folklórica 2025",
     "content": "Este sábado 5 de octubre se realizará el festival anual de danza folklórica en la plaza central de Guana. Habrá presentaciones de grupos locales y regionales.",
     "category": "danza",
-    "status": "publicado"
+    "status": "publicado",
+    "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop"
   }'
 ```
 
-### 2. Crear una publicación de Gastronomía
+### 2. Crear una publicación de Gastronomía con imagen
 ```bash
 curl -X POST http://localhost:3000/publications \
   -H "Authorization: Bearer TU_TOKEN_AQUI" \
@@ -59,7 +60,8 @@ curl -X POST http://localhost:3000/publications \
     "title": "Receta Tradicional: Tamales de Maíz",
     "content": "Los tamales son uno de los platillos más tradicionales de nuestra región. En esta publicación compartimos la receta de la abuela...",
     "category": "gastronomia",
-    "status": "publicado"
+    "status": "publicado",
+    "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=600&fit=crop"
   }'
 ```
 
@@ -149,7 +151,23 @@ curl -X PATCH http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/status \
   }'
 ```
 
-### 13. Eliminar una publicación
+### 13. Actualizar imagen de una publicación
+```bash
+curl -X PATCH http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/image \
+  -H "Authorization: Bearer TU_TOKEN_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "imageUrl": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop"
+  }'
+```
+
+### 14. Eliminar imagen de una publicación
+```bash
+curl -X DELETE http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/image \
+  -H "Authorization: Bearer TU_TOKEN_AQUI"
+```
+
+### 15. Eliminar una publicación
 ```bash
 curl -X DELETE http://localhost:3000/publications/{ID_DE_LA_PUBLICACION} \
   -H "Authorization: Bearer TU_TOKEN_AQUI"

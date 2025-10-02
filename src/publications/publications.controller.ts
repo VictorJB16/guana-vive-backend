@@ -17,7 +17,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { PublicationsService } from './publications.service';
-import { CreatePublicationDto, UpdatePublicationDto } from './dto';
+import { CreatePublicationDto, UpdatePublicationDto, UpdateImageDto } from './dto';
 import {
   PublicationCategory,
   PublicationStatus,
@@ -266,6 +266,55 @@ export class PublicationsController {
     return {
       success: true,
       message: PUBLICATION_SUCCESS_MESSAGES.STATUS_CHANGED,
+      data: publication,
+    };
+  }
+
+  /**
+   * Actualizar imagen de una publicación
+   */
+  @Patch(':id/image')
+  @UseGuards(JwtAuthGuard)
+  async updateImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateImageDto: UpdateImageDto,
+    @Request() req: any,
+  ) {
+    this.logger.log(`Updating image for publication with ID: ${id}`);
+
+    const publication = await this.publicationsService.updateImage(
+      id,
+      updateImageDto,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: 'Imagen de la publicación actualizada exitosamente',
+      data: publication,
+    };
+  }
+
+  /**
+   * Eliminar imagen de una publicación
+   */
+  @Delete(':id/image')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async removeImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: any,
+  ) {
+    this.logger.log(`Removing image from publication with ID: ${id}`);
+
+    const publication = await this.publicationsService.removeImage(
+      id,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: 'Imagen de la publicación eliminada exitosamente',
       data: publication,
     };
   }

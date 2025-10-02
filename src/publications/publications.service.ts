@@ -9,7 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Like } from 'typeorm';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
+import { UpdateImageDto } from './dto/update-image.dto';
 import { Publication } from './entities/publication.entity';
+import { ImageService } from './image.service';
 import {
   PublicationCategory,
   PublicationStatus,
@@ -28,6 +30,7 @@ export class PublicationsService {
   constructor(
     @InjectRepository(Publication)
     private readonly publicationRepository: Repository<Publication>,
+    private readonly imageService: ImageService,
   ) {}
 
   /**
@@ -42,10 +45,19 @@ export class PublicationsService {
     );
 
     try {
+      // Procesar URL de imagen si se proporciona
+      const processedImageUrl = createPublicationDto.imageUrl
+        ? this.imageService.processImageUrl(
+            createPublicationDto.imageUrl,
+            createPublicationDto.title,
+          )
+        : null;
+
       const publicationEntity = this.publicationRepository.create({
         ...createPublicationDto,
         authorId,
         status: createPublicationDto.status || PublicationStatus.DRAFT,
+        imageUrl: processedImageUrl || undefined,
       });
 
       const savedPublication =
@@ -276,6 +288,86 @@ export class PublicationsService {
         errorStack,
       );
       throw new BadRequestException(PUBLICATION_ERROR_MESSAGES.DELETE_FAILED);
+    }
+  }
+
+  /**
+   * Actualiza solo la imagen de una publicación
+   */
+  async updateImage(
+    id: string,
+    updateImageDto: UpdateImageDto,
+    userId: string,
+  ): Promise<Publication> {
+    this.logger.log(`Updating image for publication with ID: ${id}`);
+
+    const publication = await this.findOne(id);
+
+    // Verificar que el usuario sea el autor
+    if (!publication.isAuthor(userId)) {
+      this.logger.warn(
+        `User ${userId} attempted to update image of publication ${id} without permission`,
+      );
+      throw new ForbiddenException(PUBLICATION_ERROR_MESSAGES.UNAUTHORIZED);
+    }
+
+    // Procesar URL de imagen
+    const processedImageUrl = this.imageService.processImageUrl(
+      updateImageDto.imageUrl,
+      publication.title,
+    );
+
+    publication.imageUrl = processedImageUrl || undefined;
+
+    try {
+      const updatedPublication =
+        await this.publicationRepository.save(publication);
+      this.logger.log(`Publication image updated successfully for ID: ${id}`);
+      return this.findOne(updatedPublication.id);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to update publication image: ${errorMessage}`,
+        errorStack,
+      );
+      throw new BadRequestException(PUBLICATION_ERROR_MESSAGES.UPDATE_FAILED);
+    }
+  }
+
+  /**
+   * Elimina la imagen de una publicación
+   */
+  async removeImage(id: string, userId: string): Promise<Publication> {
+    this.logger.log(`Removing image from publication with ID: ${id}`);
+
+    const publication = await this.findOne(id);
+
+    // Verificar que el usuario sea el autor
+    if (!publication.isAuthor(userId)) {
+      this.logger.warn(
+        `User ${userId} attempted to remove image from publication ${id} without permission`,
+      );
+      throw new ForbiddenException(PUBLICATION_ERROR_MESSAGES.UNAUTHORIZED);
+    }
+
+    publication.imageUrl = undefined;
+
+    try {
+      const updatedPublication =
+        await this.publicationRepository.save(publication);
+      this.logger.log(`Publication image removed successfully for ID: ${id}`);
+      return this.findOne(updatedPublication.id);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to remove publication image: ${errorMessage}`,
+        errorStack,
+      );
+      throw new BadRequestException(PUBLICATION_ERROR_MESSAGES.UPDATE_FAILED);
     }
   }
 
