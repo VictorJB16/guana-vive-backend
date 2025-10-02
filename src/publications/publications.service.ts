@@ -10,8 +10,10 @@ import { Repository, FindOptionsWhere, Like } from 'typeorm';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
+import { ApprovePublicationDto } from './dto/approve-publication.dto';
 import { Publication } from './entities/publication.entity';
 import { ImageService } from './image.service';
+import { UserRole } from '../users/types/user.enum';
 import {
   PublicationCategory,
   PublicationStatus,
@@ -187,13 +189,15 @@ export class PublicationsService {
     id: string,
     updatePublicationDto: UpdatePublicationDto,
     userId: string,
+    userRole?: UserRole,
   ): Promise<Publication> {
     this.logger.log(`Updating publication with ID: ${id}`);
 
     const publication = await this.findOne(id);
 
-    // Verificar que el usuario sea el autor
-    if (!publication.isAuthor(userId)) {
+    // Verificar permisos: el autor o un admin pueden actualizar
+    const isAdmin = userRole === UserRole.ADMIN;
+    if (!publication.isAuthor(userId) && !isAdmin) {
       this.logger.warn(
         `User ${userId} attempted to update publication ${id} without permission`,
       );
@@ -263,13 +267,14 @@ export class PublicationsService {
   /**
    * Elimina una publicación
    */
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, userRole?: UserRole): Promise<void> {
     this.logger.log(`Removing publication with ID: ${id}`);
 
     const publication = await this.findOne(id);
 
-    // Verificar que el usuario sea el autor
-    if (!publication.isAuthor(userId)) {
+    // Verificar permisos: el autor o un admin pueden eliminar
+    const isAdmin = userRole === UserRole.ADMIN;
+    if (!publication.isAuthor(userId) && !isAdmin) {
       this.logger.warn(
         `User ${userId} attempted to delete publication ${id} without permission`,
       );
@@ -289,6 +294,113 @@ export class PublicationsService {
       );
       throw new BadRequestException(PUBLICATION_ERROR_MESSAGES.DELETE_FAILED);
     }
+  }
+
+  /**
+   * Solicita la aprobación de una publicación (cambio a pendiente_revision)
+   */
+  async requestApproval(id: string, userId: string): Promise<Publication> {
+    this.logger.log(`Requesting approval for publication with ID: ${id}`);
+
+    const publication = await this.findOne(id);
+
+    // Solo el autor puede solicitar aprobación
+    if (!publication.isAuthor(userId)) {
+      this.logger.warn(
+        `User ${userId} attempted to request approval for publication ${id} without being the author`,
+      );
+      throw new ForbiddenException(
+        'Solo el autor puede solicitar aprobación de su publicación',
+      );
+    }
+
+    // Verificar que no esté ya en revisión o publicada
+    if (publication.status === PublicationStatus.PENDING_REVIEW) {
+      throw new BadRequestException(
+        'La publicación ya está en proceso de revisión',
+      );
+    }
+
+    if (publication.status === PublicationStatus.PUBLISHED) {
+      throw new BadRequestException('La publicación ya está publicada');
+    }
+
+    publication.status = PublicationStatus.PENDING_REVIEW;
+
+    try {
+      const updatedPublication =
+        await this.publicationRepository.save(publication);
+      this.logger.log(`Approval requested successfully for ID: ${id}`);
+      return this.findOne(updatedPublication.id);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to request approval: ${errorMessage}`,
+        errorStack,
+      );
+      throw new BadRequestException(
+        'Error al solicitar aprobación de la publicación',
+      );
+    }
+  }
+
+  /**
+   * Aprueba o rechaza una publicación (solo administradores)
+   */
+  async approvePublication(
+    id: string,
+    approveDto: ApprovePublicationDto,
+  ): Promise<Publication> {
+    this.logger.log(`Approving/Rejecting publication with ID: ${id}`);
+
+    const publication = await this.findOne(id);
+
+    // Validar que el nuevo estado sea válido para aprobación
+    if (
+      approveDto.status !== PublicationStatus.PUBLISHED &&
+      approveDto.status !== PublicationStatus.ARCHIVED
+    ) {
+      throw new BadRequestException(
+        'El estado debe ser "publicado" o "archivado"',
+      );
+    }
+
+    publication.status = approveDto.status;
+
+    try {
+      const updatedPublication =
+        await this.publicationRepository.save(publication);
+      this.logger.log(
+        `Publication ${approveDto.status === PublicationStatus.PUBLISHED ? 'approved' : 'rejected'} successfully for ID: ${id}`,
+      );
+      return this.findOne(updatedPublication.id);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to approve/reject publication: ${errorMessage}`,
+        errorStack,
+      );
+      throw new BadRequestException(
+        'Error al aprobar/rechazar la publicación',
+      );
+    }
+  }
+
+  /**
+   * Obtiene todas las publicaciones pendientes de revisión (solo admin)
+   */
+  async getPendingPublications(
+    options: IFindPublicationsOptions = {},
+  ): Promise<IPaginatedResponse<Publication>> {
+    this.logger.log('Fetching pending publications');
+    return this.findAll({
+      ...options,
+      status: PublicationStatus.PENDING_REVIEW,
+    });
   }
 
   /**

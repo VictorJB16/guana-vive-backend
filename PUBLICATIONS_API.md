@@ -3,6 +3,9 @@
 ## Descripción General
 API para gestionar publicaciones culturales con diferentes categorías: Danza, Gastronomía, Retahilero, Artista Local y Grupo de Música.
 
+**Incluye sistema completo de aprobación por administrador.**  
+📖 Ver documentación completa del flujo de aprobación en: `PUBLICATIONS_APPROVAL_FLOW.md`
+
 ## Categorías Disponibles
 - `danza`: Publicaciones relacionadas con danza
 - `gastronomia`: Publicaciones sobre gastronomía local
@@ -366,8 +369,109 @@ Authorization: Bearer {token}
 
 ---
 
-### 11. Eliminar Publicación
-Elimina una publicación. Solo el autor puede eliminar su propia publicación.
+### 11. Solicitar Aprobación de Publicación
+
+Solicita aprobación para publicar. Cambia el estado de la publicación a "pendiente_revision".
+
+**Endpoint:** `POST /publications/:id/request-approval`
+
+**Permisos:** Usuario autenticado (autor de la publicación)
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Solicitud de aprobación enviada exitosamente",
+  "data": {
+    "id": "uuid",
+    "status": "pendiente_revision",
+    ...
+  }
+}
+```
+
+---
+
+### 12. Ver Publicaciones Pendientes (Admin)
+
+Obtiene todas las publicaciones pendientes de revisión. Solo para administradores.
+
+**Endpoint:** `GET /publications/admin/pending`
+
+**Permisos:** Solo administradores
+
+**Headers:**
+```
+Authorization: Bearer {token_admin}
+```
+
+**Query Parameters:** page, limit, sortBy, order, search
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [...],
+  "meta": {
+    "total": 5,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 1
+  }
+}
+```
+
+---
+
+### 13. Aprobar o Rechazar Publicación (Admin)
+
+Aprueba o rechaza una publicación pendiente. Solo para administradores.
+
+**Endpoint:** `POST /publications/:id/approve`
+
+**Permisos:** Solo administradores
+
+**Headers:**
+```
+Authorization: Bearer {token_admin}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "status": "publicado",
+  "message": "Aprobado: Excelente contenido"
+}
+```
+
+**Valores válidos para status:**
+- `"publicado"`: Aprobar la publicación
+- `"archivado"`: Rechazar la publicación
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Publicación aprobada exitosamente",
+  "data": {
+    "id": "uuid",
+    "status": "publicado",
+    ...
+  }
+}
+```
+
+---
+
+### 14. Eliminar Publicación
+
+Elimina una publicación. El autor puede eliminar su propia publicación. Los administradores pueden eliminar cualquier publicación.
 
 **Endpoint:** `DELETE /publications/:id`
 
@@ -468,9 +572,17 @@ curl -X DELETE http://localhost:3000/publications/{id} \
 ## Notas Importantes
 
 1. **Autenticación**: Los endpoints de creación, actualización y eliminación requieren JWT token válido.
-2. **Permisos**: Solo el autor de una publicación puede modificarla o eliminarla.
-3. **Paginación**: Por defecto muestra 10 elementos por página, máximo 100.
-4. **Búsqueda**: El parámetro `search` busca en los campos `title` y `content`.
-5. **Relaciones**: Cada publicación incluye información del autor automáticamente.
-6. **Cascada**: Si se elimina un usuario, sus publicaciones también se eliminan.
+2. **Permisos por Rol**:
+   - **Usuarios**: Pueden crear, editar y eliminar sus propias publicaciones
+   - **Administradores**: Pueden crear, editar y eliminar CUALQUIER publicación
+3. **Flujo de Aprobación**: 
+   - Usuarios crean publicaciones en estado "borrador"
+   - Solicitan aprobación (cambia a "pendiente_revision")
+   - Administradores aprueban (cambia a "publicado") o rechazan (cambia a "archivado")
+4. **Paginación**: Por defecto muestra 10 elementos por página, máximo 100.
+5. **Búsqueda**: El parámetro `search` busca en los campos `title` y `content`.
+6. **Relaciones**: Cada publicación incluye información del autor automáticamente.
+7. **Cascada**: Si se elimina un usuario, sus publicaciones también se eliminan.
+
+📖 **Ver documentación completa del flujo de aprobación en:** `PUBLICATIONS_APPROVAL_FLOW.md`
 

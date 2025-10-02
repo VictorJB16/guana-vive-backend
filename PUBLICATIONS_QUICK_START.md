@@ -167,7 +167,41 @@ curl -X DELETE http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/image \
   -H "Authorization: Bearer TU_TOKEN_AQUI"
 ```
 
-### 15. Eliminar una publicación
+### 15. Solicitar aprobación de publicación (usuario)
+```bash
+curl -X POST http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/request-approval \
+  -H "Authorization: Bearer TU_TOKEN_AQUI"
+```
+
+### 16. Ver publicaciones pendientes (solo admin)
+```bash
+curl http://localhost:3000/publications/admin/pending \
+  -H "Authorization: Bearer TOKEN_ADMIN"
+```
+
+### 17. Aprobar publicación (solo admin)
+```bash
+curl -X POST http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/approve \
+  -H "Authorization: Bearer TOKEN_ADMIN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "publicado",
+    "message": "Contenido aprobado"
+  }'
+```
+
+### 18. Rechazar publicación (solo admin)
+```bash
+curl -X POST http://localhost:3000/publications/{ID_DE_LA_PUBLICACION}/approve \
+  -H "Authorization: Bearer TOKEN_ADMIN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "archivado",
+    "message": "Contenido no cumple con las normas"
+  }'
+```
+
+### 19. Eliminar una publicación
 ```bash
 curl -X DELETE http://localhost:3000/publications/{ID_DE_LA_PUBLICACION} \
   -H "Authorization: Bearer TU_TOKEN_AQUI"
@@ -254,10 +288,18 @@ WHERE category = 'danza';
 ## ⚠️ Notas Importantes
 
 1. Reemplaza `TU_TOKEN_AQUI` con tu token JWT real obtenido del login
-2. Reemplaza `{ID_DE_LA_PUBLICACION}` con el ID UUID real de una publicación
-3. Solo puedes modificar/eliminar tus propias publicaciones
-4. Las publicaciones públicas son visibles sin autenticación
-5. La creación requiere autenticación
+2. Reemplaza `TOKEN_ADMIN` con un token JWT de administrador
+3. Reemplaza `{ID_DE_LA_PUBLICACION}` con el ID UUID real de una publicación
+4. **Usuarios regulares**: Pueden modificar/eliminar solo sus propias publicaciones
+5. **Administradores**: Pueden modificar/eliminar CUALQUIER publicación
+6. **Flujo de Aprobación**:
+   - Usuarios crean publicaciones en estado "borrador"
+   - Solicitan aprobación (cambia a "pendiente_revision")
+   - Administradores aprueban o rechazan
+7. Las publicaciones con estado "publicado" son visibles sin autenticación
+8. La creación requiere autenticación
+
+📖 **Ver documentación completa del flujo de aprobación en:** `PUBLICATIONS_APPROVAL_FLOW.md`
 
 ---
 
