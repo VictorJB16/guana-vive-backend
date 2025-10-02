@@ -1,0 +1,290 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  Query,
+  Logger,
+  ValidationPipe,
+  UsePipes,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { PublicationsService } from './publications.service';
+import { CreatePublicationDto, UpdatePublicationDto } from './dto';
+import {
+  PublicationCategory,
+  PublicationStatus,
+  PublicationSortBy,
+  SortOrder,
+  IFindPublicationsOptions,
+  PUBLICATION_SUCCESS_MESSAGES,
+} from './types';
+import type { PublicationQueryParams } from './types';
+import { JwtAuthGuard } from '../auth/guards';
+
+@Controller('publications')
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+export class PublicationsController {
+  private readonly logger = new Logger(PublicationsController.name);
+
+  constructor(private readonly publicationsService: PublicationsService) {}
+
+  /**
+   * Crear una nueva publicación
+   */
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createPublicationDto: CreatePublicationDto,
+    @Request() req: any,
+  ) {
+    this.logger.log(
+      `Creating publication with title: ${createPublicationDto.title}`,
+    );
+
+    const publication = await this.publicationsService.create(
+      createPublicationDto,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: PUBLICATION_SUCCESS_MESSAGES.CREATED,
+      data: publication,
+    };
+  }
+
+  /**
+   * Obtener todas las publicaciones con filtros y paginación
+   */
+  @Get()
+  async findAll(@Query() queryParams: PublicationQueryParams) {
+    this.logger.log('Fetching publications with filters:', queryParams);
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      category: queryParams.category as PublicationCategory,
+      status: queryParams.status as PublicationStatus,
+      authorId: queryParams.authorId,
+      search: queryParams.search,
+    };
+
+    const result = await this.publicationsService.findAll(options);
+
+    return {
+      success: true,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener publicaciones del usuario autenticado
+   */
+  @Get('my-publications')
+  @UseGuards(JwtAuthGuard)
+  async getMyPublications(
+    @Request() req: any,
+    @Query() queryParams: PublicationQueryParams,
+  ) {
+    this.logger.log(`Getting publications for user ID: ${req.user.id}`);
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      category: queryParams.category as PublicationCategory,
+      status: queryParams.status as PublicationStatus,
+      search: queryParams.search,
+    };
+
+    const result = await this.publicationsService.findByAuthor(
+      req.user.id,
+      options,
+    );
+
+    return {
+      success: true,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener publicaciones por categoría
+   */
+  @Get('category/:category')
+  async findByCategory(
+    @Param('category') category: PublicationCategory,
+    @Query() queryParams: PublicationQueryParams,
+  ) {
+    this.logger.log(`Fetching publications for category: ${category}`);
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      status: queryParams.status as PublicationStatus,
+      search: queryParams.search,
+    };
+
+    const result = await this.publicationsService.findByCategory(
+      category,
+      options,
+    );
+
+    return {
+      success: true,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener publicaciones de un autor específico
+   */
+  @Get('author/:authorId')
+  async findByAuthor(
+    @Param('authorId', ParseUUIDPipe) authorId: string,
+    @Query() queryParams: PublicationQueryParams,
+  ) {
+    this.logger.log(`Fetching publications for author: ${authorId}`);
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      category: queryParams.category as PublicationCategory,
+      status: queryParams.status as PublicationStatus,
+      search: queryParams.search,
+    };
+
+    const result = await this.publicationsService.findByAuthor(
+      authorId,
+      options,
+    );
+
+    return {
+      success: true,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener una publicación por ID
+   */
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    this.logger.log(`Fetching publication with ID: ${id}`);
+
+    const publication = await this.publicationsService.findOne(id);
+
+    return {
+      success: true,
+      data: publication,
+    };
+  }
+
+  /**
+   * Actualizar una publicación
+   */
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePublicationDto: UpdatePublicationDto,
+    @Request() req: any,
+  ) {
+    this.logger.log(`Updating publication with ID: ${id}`);
+
+    const publication = await this.publicationsService.update(
+      id,
+      updatePublicationDto,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: PUBLICATION_SUCCESS_MESSAGES.UPDATED,
+      data: publication,
+    };
+  }
+
+  /**
+   * Cambiar el estado de una publicación
+   */
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard)
+  async changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('status') status: PublicationStatus,
+    @Request() req: any,
+  ) {
+    this.logger.log(`Changing status of publication ${id} to ${status}`);
+
+    const publication = await this.publicationsService.changeStatus(
+      id,
+      status,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: PUBLICATION_SUCCESS_MESSAGES.STATUS_CHANGED,
+      data: publication,
+    };
+  }
+
+  /**
+   * Eliminar una publicación
+   */
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+    this.logger.log(`Removing publication with ID: ${id}`);
+
+    await this.publicationsService.remove(id, req.user.id);
+
+    return {
+      success: true,
+      message: PUBLICATION_SUCCESS_MESSAGES.DELETED,
+    };
+  }
+}
+

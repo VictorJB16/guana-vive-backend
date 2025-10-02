@@ -1,0 +1,71 @@
+# Guana Vive Backend - Cursor Rules
+
+## Project Context
+This is a NestJS backend application for "Guana Vive" with PostgreSQL database, JWT authentication, and user management.
+
+## Code Style & Conventions
+
+### TypeScript/NestJS Standards
+- Use TypeScript strict mode
+- Follow NestJS conventions and decorators
+- Use dependency injection properly
+- Implement proper error handling with try-catch blocks
+- Use DTOs for data validation
+- Follow the repository pattern for database operations
+
+### File Structure
+- Controllers: Handle HTTP requests and responses
+- Services: Business logic implementation
+- DTOs: Data transfer objects for validation
+- Entities: Database models
+- Guards: Authentication and authorization
+- Strategies: JWT and other auth strategies
+- Interfaces: Type definitions
+
+### Naming Conventions
+- Use PascalCase for classes, interfaces, and DTOs
+- Use camelCase for variables and methods
+- Use UPPER_SNAKE_CASE for constants
+- Use descriptive names that explain the purpose
+
+### Database & ORM
+- Use TypeORM for database operations
+- Always use transactions for multiple database operations
+- Implement proper migrations
+- Use proper indexing for performance
+
+### Authentication & Security
+- Implement JWT tokens properly
+- Use guards for route protection
+- Hash passwords with bcrypt
+- Validate all inputs with DTOs
+- Implement proper error handling for auth failures
+
+### API Design
+- Follow RESTful conventions
+- Use proper HTTP status codes
+- Implement proper error responses
+- Use Swagger/OpenAPI documentation
+- Return consistent response formats
+
+### Error Handling
+- Use custom exception classes
+- Implement global exception filters
+- Log errors appropriately
+- Return user-friendly error messages
+- Handle validation errors properly
+
+### Code Quality
+- Write unit tests for services
+- Use proper TypeScript types
+- Avoid any types when possible
+- Implement proper logging
+- Use environment variables for configuration
+
+## Specific to this project
+- User management with profiles
+- File upload functionality
+- JWT authentication with refresh tokens
+- PostgreSQL database
+- Docker containerization
+- Migration-based database schema management
