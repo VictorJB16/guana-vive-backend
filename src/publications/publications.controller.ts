@@ -136,9 +136,9 @@ export class PublicationsController {
   }
 
   /**
-   * Obtener publicaciones por categoría
+   * Obtener publicaciones por categoría específica
    */
-  @Get('category/:category')
+  @Get('filter/category/:category')
   async findByCategory(
     @Param('category') category: PublicationCategory,
     @Query() queryParams: PublicationQueryParams,
@@ -161,6 +161,74 @@ export class PublicationsController {
 
     return {
       success: true,
+      message: `Publicaciones de la categoría: ${category}`,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener publicaciones por estado específico
+   */
+  @Get('filter/status/:status')
+  async findByStatus(
+    @Param('status') status: PublicationStatus,
+    @Query() queryParams: PublicationQueryParams,
+  ) {
+    this.logger.log(`Fetching publications with status: ${status}`);
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      category: queryParams.category as PublicationCategory,
+      search: queryParams.search,
+      status,
+    };
+
+    const result = await this.publicationsService.findAll(options);
+
+    return {
+      success: true,
+      message: `Publicaciones con estado: ${status}`,
+      data: result.data,
+      meta: {
+        total: result.meta.total,
+        page: result.meta.page,
+        limit: result.meta.limit,
+        totalPages: result.meta.totalPages,
+      },
+    };
+  }
+
+  /**
+   * Obtener publicaciones publicadas (solo publicadas)
+   */
+  @Get('published')
+  async getPublishedPublications(@Query() queryParams: PublicationQueryParams) {
+    this.logger.log('Fetching published publications');
+
+    const options: IFindPublicationsOptions = {
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 10,
+      sortBy: queryParams.sortBy as PublicationSortBy,
+      order: queryParams.order as SortOrder,
+      category: queryParams.category as PublicationCategory,
+      search: queryParams.search,
+      status: PublicationStatus.PUBLISHED,
+    };
+
+    const result = await this.publicationsService.findAll(options);
+
+    return {
+      success: true,
+      message: 'Publicaciones publicadas',
       data: result.data,
       meta: {
         total: result.meta.total,

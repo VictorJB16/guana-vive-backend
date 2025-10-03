@@ -6,6 +6,9 @@ API para gestionar publicaciones culturales con diferentes categorías: Danza, G
 **Incluye sistema completo de aprobación por administrador.**  
 📖 Ver documentación completa del flujo de aprobación en: `PUBLICATIONS_APPROVAL_FLOW.md`
 
+**Incluye sistema avanzado de filtros por categoría y estado.**  
+📖 Ver guía completa de filtros en: `PUBLICATIONS_FILTERS.md`
+
 ## Categorías Disponibles
 - `danza`: Publicaciones relacionadas con danza
 - `gastronomia`: Publicaciones sobre gastronomía local
@@ -88,13 +91,29 @@ Obtiene todas las publicaciones con filtros y paginación. No requiere autentica
 - `limit`: Elementos por página (default: 10, max: 100)
 - `sortBy`: Campo de ordenamiento (`createdAt`, `updatedAt`, `title`)
 - `order`: Orden (`ASC`, `DESC`)
-- `category`: Filtrar por categoría
-- `status`: Filtrar por estado
+- `category`: Filtrar por categoría (`danza`, `gastronomia`, `retahilero`, `artista_local`, `grupo_musica`)
+- `status`: Filtrar por estado (`borrador`, `publicado`, `archivado`, `pendiente_revision`)
 - `authorId`: Filtrar por autor (UUID)
 - `search`: Búsqueda en título y contenido
 
-**Ejemplo:**
+**Ejemplos:**
 ```
+# Todas las publicaciones
+GET /publications
+
+# Publicaciones de danza
+GET /publications?category=danza
+
+# Publicaciones publicadas
+GET /publications?status=publicado
+
+# Combinación: Danza publicada
+GET /publications?category=danza&status=publicado
+
+# Buscar "festival" en publicaciones
+GET /publications?search=festival
+
+# Con paginación
 GET /publications?page=1&limit=10&category=danza&status=publicado&order=DESC
 ```
 
@@ -130,7 +149,99 @@ GET /publications?page=1&limit=10&category=danza&status=publicado&order=DESC
 
 ---
 
-### 3. Obtener Mis Publicaciones
+### 3. Filtrar por Categoría Específica
+Endpoint dedicado para obtener publicaciones de una categoría específica.
+
+**Endpoint:** `GET /publications/filter/category/:category`
+
+**Parámetros de URL:**
+- `:category`: Categoría (`danza`, `gastronomia`, `retahilero`, `artista_local`, `grupo_musica`)
+
+**Query Parameters:** `status`, `search`, `page`, `limit`, `sortBy`, `order`
+
+**Ejemplos:**
+```bash
+# Todas las publicaciones de danza
+GET /publications/filter/category/danza
+
+# Publicaciones de gastronomía que están publicadas
+GET /publications/filter/category/gastronomia?status=publicado
+
+# Buscar "tradicional" en retahilero
+GET /publications/filter/category/retahilero?search=tradicional
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Publicaciones de la categoría: danza",
+  "data": [...],
+  "meta": {...}
+}
+```
+
+---
+
+### 4. Filtrar por Estado Específico
+Endpoint dedicado para obtener publicaciones con un estado específico.
+
+**Endpoint:** `GET /publications/filter/status/:status`
+
+**Parámetros de URL:**
+- `:status`: Estado (`borrador`, `publicado`, `archivado`, `pendiente_revision`)
+
+**Query Parameters:** `category`, `search`, `page`, `limit`, `sortBy`, `order`
+
+**Ejemplos:**
+```bash
+# Todas las publicaciones publicadas
+GET /publications/filter/status/publicado
+
+# Publicaciones en borrador de danza
+GET /publications/filter/status/borrador?category=danza
+
+# Publicaciones archivadas
+GET /publications/filter/status/archivado
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Publicaciones con estado: publicado",
+  "data": [...],
+  "meta": {...}
+}
+```
+
+---
+
+### 5. Obtener Solo Publicaciones Publicadas
+Endpoint helper para obtener rápidamente solo publicaciones publicadas.
+
+**Endpoint:** `GET /publications/published`
+
+**Query Parameters:** `category`, `search`, `page`, `limit`, `sortBy`, `order`
+
+**Ejemplo:**
+```bash
+GET /publications/published?category=danza
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Publicaciones publicadas",
+  "data": [...],
+  "meta": {...}
+}
+```
+
+---
+
+### 6. Obtener Mis Publicaciones
 Obtiene las publicaciones del usuario autenticado. Requiere autenticación.
 
 **Endpoint:** `GET /publications/my-publications`
