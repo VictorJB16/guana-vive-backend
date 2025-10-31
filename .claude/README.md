@@ -17,11 +17,14 @@ Este directorio contiene la configuración de **Claude Code** para mejorar el de
 
 Claude Code es una herramienta que permite configurar **agentes especializados** de Claude para tareas específicas de desarrollo. En este caso, hemos instalado el agente **backend-architect** que es experto en:
 
-- 🏗️ Diseño de arquitectura de sistemas backend
-- 🔌 Diseño de APIs RESTful
-- 🗄️ Diseño de esquemas de base de datos
-- 📈 Optimización de rendimiento
-- 🔒 Patrones de seguridad básicos
+- 🏗️ Diseño de arquitectura de **monolito modular** (NO microservicios)
+- 🔌 Diseño de APIs RESTful con NestJS
+- 🗄️ Diseño de esquemas de base de datos (PostgreSQL)
+- 📈 Optimización de rendimiento (caching, indexing)
+- 🔒 Patrones de seguridad básicos (auth, rate limiting)
+- 📦 Escalamiento de monolitos (horizontal + vertical)
+
+⚠️ **IMPORTANTE**: Este agente está configurado para arquitectura **MONOLITO MODULAR**. No sugerirá microservicios.
 
 ## 🚀 Cómo Usar el Agente
 
@@ -94,19 +97,20 @@ Configuración del agente especializado con:
 - Código que respeta los estándares del equipo
 
 ### ✅ Especialización
-- Respuestas enfocadas en backend y APIs
+- Respuestas enfocadas en **monolito modular**
 - Conocimiento profundo de NestJS y TypeORM
-- Mejores prácticas de arquitectura
+- Mejores prácticas de arquitectura para monolitos
 
 ### ✅ Productividad
 - Menos tiempo explicando el contexto del proyecto
 - Respuestas más precisas y accionables
 - Ejemplos de código listos para usar
 
-### ✅ Escalabilidad
-- Diseños pensados para crecimiento futuro
+### ✅ Escalabilidad (Monolith-First)
+- Diseños pensados para escalar el monolito
 - Identificación temprana de bottlenecks
-- Sugerencias de optimización proactivas
+- Sugerencias de optimización (caching, indexing, load balancing)
+- **NO sugerirá microservicios** innecesarios
 
 ## 🔧 Configuración Adicional
 
@@ -172,15 +176,17 @@ Agente: [Proporciona]
 ## 🎯 Mejores Prácticas
 
 ### ✅ DO
-- Usa el agente para diseño de arquitectura
-- Pide revisiones de código relacionadas con backend
-- Solicita optimizaciones específicas
-- Pregunta sobre patrones y mejores prácticas
+- Usa el agente para diseño de arquitectura **modular monolítica**
+- Pide revisiones de código relacionadas con backend NestJS
+- Solicita optimizaciones de rendimiento (caching, DB)
+- Pregunta sobre patrones y mejores prácticas para monolitos
+- Pide estrategias de escalamiento horizontal del monolito
 
 ### ❌ DON'T
 - No uses el agente para frontend (usa otro agente especializado)
 - No esperes respuestas sobre testing unitario detallado (usa testing agent)
 - No uses para debugging de errores específicos (usa debug agent)
+- **NUNCA pidas arquitectura de microservicios** (fuera del scope del proyecto)
 
 ## 🔄 Actualizaciones
 

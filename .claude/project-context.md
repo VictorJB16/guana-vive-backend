@@ -4,7 +4,7 @@
 **Name:** Guana Vive Backend  
 **Type:** NestJS REST API  
 **Purpose:** Backend system for Guana Vive platform with authentication and user management  
-**Architecture:** Modular monolith with potential microservices evolution
+**Architecture:** Modular monolith (NO microservices - permanecerá como monolito modular)
 
 ## 🏗️ Current Architecture
 
@@ -33,11 +33,13 @@ src/
 
 ## 🎯 Architecture Decisions
 
-### Separation of Concerns
+### Separation of Concerns (Monolith Modular)
 - ✅ **Auth Module**: Only handles authentication (register, login, JWT)
 - ✅ **Users Module**: Only handles user CRUD operations
+- ✅ **Publications Module**: Content management system
 - ✅ **Guards**: Centralized route protection
 - ✅ **DTOs**: Input/output validation and typing
+- ⚠️ **IMPORTANTE**: Este proyecto NO se convertirá en microservicios. Se mantendrá como monolito modular por diseño.
 
 ### Database Design
 - Primary Keys: UUID v4
@@ -100,7 +102,16 @@ CREATE TABLE users (
 - E2E tests: Supertest
 - Test coverage: Target 80%+
 
-## 📈 Scalability Considerations
+## 📈 Scalability Considerations (Monolith Architecture)
+
+### Architecture Decision
+**⚠️ IMPORTANTE:** Este proyecto es y permanecerá como un **monolito modular**. NO se planea migración a microservicios.
+
+### Estrategia de Escalamiento
+- **Vertical scaling**: Aumentar recursos del servidor (CPU, RAM)
+- **Horizontal scaling**: Múltiples instancias del monolito con load balancer
+- **Database scaling**: Read replicas, connection pooling
+- **Caching**: Redis para reducir carga de DB
 
 ### Current Limitations
 - Single database instance
@@ -109,23 +120,37 @@ CREATE TABLE users (
 - No API versioning
 - No monitoring/logging infrastructure
 
-### Future Improvements Planned
-1. Redis for caching and sessions
-2. Rate limiting middleware
-3. API versioning strategy
-4. Monitoring with Prometheus/Grafana
-5. Centralized logging (Winston + ELK)
-6. Database replication/read replicas
-7. Message queue (RabbitMQ/Kafka) for async operations
+### Future Improvements Planned (Monolith-Focused)
+1. ✅ Redis for caching and sessions
+2. ✅ Rate limiting middleware (@nestjs/throttler)
+3. ✅ API versioning strategy (v1, v2 endpoints)
+4. ✅ Monitoring with Prometheus/Grafana
+5. ✅ Centralized logging (Winston)
+6. ✅ Database connection pooling
+7. ✅ Background jobs (Bull/Queue system)
+8. ✅ Load balancing (Nginx/HAProxy para múltiples instancias)
+
+### What We Will NOT Do
+- ❌ Split into microservices
+- ❌ Service mesh (Istio, Linkerd)
+- ❌ Message brokers between services (Kafka, RabbitMQ para inter-service communication)
+- ❌ API Gateway for service routing
+- ❌ Distributed tracing (OpenTelemetry para microservices)
 
 ## 🎯 Current Sprint Focus
 - ✅ Complete Auth/Users separation
 - ✅ JWT implementation with refresh tokens
 - ✅ Basic CRUD operations
-- 🔄 Template and agent setup for better development workflow
-- 🔜 Profile management
-- 🔜 Role-based access control (RBAC)
-- 🔜 File upload service
+- ✅ Publications module with approval workflow
+- ✅ Template and agent setup for better development workflow
+- 🔜 Profile management enhancements
+- 🔜 Advanced search and filters
+- 🔜 File upload optimization
+- 🔜 Performance tuning (caching, indexing)
+- 🔜 Rate limiting implementation
+
+### Architecture Principles
+⚠️ **MONOLITH FIRST**: Todas las decisiones de arquitectura deben enfocarse en mejorar el monolito modular, NO en preparar para microservicios.
 
 ## 📝 API Documentation
 

@@ -72,15 +72,17 @@ de autenticación contra ataques de fuerza bruta
 #### 📊 Revisar Arquitectura
 ```
 @backend-architect revisa la arquitectura actual del proyecto y sugiere
-mejoras para escalabilidad y mantenibilidad
+mejoras para escalabilidad y mantenibilidad del monolito modular
 ```
 
 **El agente evaluará:**
-- ✅ Separación de responsabilidades
+- ✅ Separación de responsabilidades en módulos
 - ✅ Patrones de diseño aplicados
 - ✅ Potenciales bottlenecks
-- ✅ Mejoras de performance
-- ✅ Preparación para microservicios
+- ✅ Mejoras de performance (caching, indexing)
+- ✅ Estrategias de escalamiento horizontal del monolito
+
+⚠️ **IMPORTANTE**: Este proyecto es un MONOLITO MODULAR y NO se convertirá en microservicios.
 
 ## 🎨 Casos de Uso Comunes
 
@@ -153,20 +155,22 @@ cat .claude/commands.md
 cat .claude/agents/backend-architect.md
 ```
 
-## 🎓 Mejores Prácticas
+### 🎓 Mejores Prácticas
 
 ### ✅ DO (Hacer)
 - ✅ Sé específico en tus preguntas
 - ✅ Proporciona contexto cuando sea necesario
-- ✅ Pide ejemplos de código concretos
-- ✅ Solicita diagramas de arquitectura
+- ✅ Pide ejemplos de código concretos para NestJS
+- ✅ Solicita diagramas de módulos (no microservicios)
 - ✅ Pregunta sobre trade-offs de diferentes soluciones
+- ✅ Enfócate en optimización del monolito
 
 ### ❌ DON'T (No hacer)
 - ❌ Preguntas demasiado generales ("¿cómo hago un backend?")
 - ❌ Temas fuera del scope (frontend, devops avanzado)
 - ❌ Solicitar debugging de errores específicos sin contexto
 - ❌ Pedir que escriba todo el código desde cero sin tu input
+- ❌ **NUNCA pedir arquitectura de microservicios** (este es un MONOLITO)
 
 ## 💡 Tips Pro
 
