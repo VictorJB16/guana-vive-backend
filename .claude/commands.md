@@ -99,6 +99,17 @@ curl -X POST http://localhost:3000/auth/login \
     "password": "password123"
   }'
 
+# Refresh token
+curl -X POST http://localhost:3000/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "YOUR_REFRESH_TOKEN"
+  }'
+
+# Get current user profile
+curl -X GET http://localhost:3000/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
 # Get all users (requires token)
 curl -X GET http://localhost:3000/users \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
@@ -106,9 +117,102 @@ curl -X GET http://localhost:3000/users \
 # Get user by ID
 curl -X GET http://localhost:3000/users/USER_UUID \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Test CORS from frontend
+curl -X OPTIONS http://localhost:3000/auth/login \
+  -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: POST" \
+  -v
 ```
 
-## 🔧 Git Workflow Commands
+## � Frontend Integration Testing
+
+### Start Backend + Frontend
+```bash
+# Terminal 1: Start backend
+cd c:\guana-vive-backend\guana-vive-backend
+docker-compose up -d
+pnpm run start:dev
+
+# Terminal 2: Start frontend (clone if needed)
+git clone https://github.com/PinedaCR10/Front-GuanaVive.git
+cd Front-GuanaVive
+npm install
+npm run dev
+
+# Frontend: http://localhost:5173
+# Backend:  http://localhost:3000
+```
+
+### Test Authentication Flow
+```bash
+# 1. Register via frontend UI or curl
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@guanavive.com",
+    "password": "admin123",
+    "firstName": "Admin",
+    "lastName": "GuanaVive"
+  }'
+
+# 2. Login and save token
+TOKEN=$(curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@guanavive.com",
+    "password": "admin123"
+  }' | jq -r '.access_token')
+
+# 3. Test protected endpoint
+curl -X GET http://localhost:3000/users \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Test CORS
+curl -X OPTIONS http://localhost:3000/auth/login \
+  -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: Content-Type" \
+  -v
+```
+
+### Verify Frontend Connection
+```bash
+# Check frontend can reach backend
+curl http://localhost:3000
+# Should return API info or 404 with NestJS error format
+
+# Check backend accepts CORS from frontend
+curl -I -X OPTIONS http://localhost:3000/auth/login \
+  -H "Origin: http://localhost:5173"
+# Should see: Access-Control-Allow-Origin: http://localhost:5173
+```
+
+### Debug Integration Issues
+```bash
+# Backend logs
+docker-compose logs -f app
+
+# Check if backend is running
+curl http://localhost:3000/auth/login
+# Should return: 400/415 (method not allowed or content type issue)
+
+# Check database connection
+docker-compose exec db psql -U postgres -d guana_vive_db -c "SELECT COUNT(*) FROM users;"
+
+# Check frontend can resolve backend
+# In browser console (http://localhost:5173):
+fetch('http://localhost:3000/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: 'test@test.com', password: 'test123' })
+})
+.then(r => r.json())
+.then(console.log)
+.catch(console.error)
+```
+
+## �🔧 Git Workflow Commands
 
 ### Feature Development
 ```bash
