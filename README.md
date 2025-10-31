@@ -35,12 +35,9 @@ graph TB
 
 ## 🎯 Características Implementadas y Probadas
 
-### 🤖 **Claude Code Agent - NUEVO** 
-- ✅ **Backend Architect Agent** especializado en arquitectura
-- ✅ **Contexto del proyecto** documentado
-- ✅ **Comandos de desarrollo** organizados
-- ✅ **Guías de uso** y mejores prácticas
-- 📁 Ver: [`.claude/README.md`](.claude/README.md)
+### 🤖 **Claude Code Agent** 
+- ✅ Backend Architect especializado en monolitos
+- 📁 Config: `.claude/` (agent + context + commands)
 
 ### 🔒 **Sistema de Autenticación JWT - FUNCIONAL**
 - ✅ **Registro de usuarios** con validación de email único
@@ -408,36 +405,12 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## 🤖 Desarrollo con Claude Code Agent
-
-Este proyecto incluye un **agente especializado de Claude** para mejorar la productividad del desarrollo backend.
-
-### Usar el Backend Architect Agent
+## 🤖 Claude Agent
 
 ```bash
-# Activar el agente en cualquier conversación
-@backend-architect [tu pregunta o tarea]
+@backend-architect [tu pregunta]
+# Ejemplos: optimiza endpoint, diseña módulo, implementa caching
 ```
-
-### Ejemplos de Uso
-
-```bash
-# Diseñar nuevos módulos
-@backend-architect diseña un módulo de productos con categorías
-
-# Revisar arquitectura
-@backend-architect revisa la arquitectura actual y sugiere mejoras
-
-# Optimización
-@backend-architect optimiza el endpoint de usuarios con caching
-
-# Seguridad
-@backend-architect implementa rate limiting en los endpoints de auth
-```
-
-📚 **Documentación completa:** [`.claude/README.md`](.claude/README.md)  
-📋 **Comandos útiles:** [`.claude/commands.md`](.claude/commands.md)  
-🎯 **Contexto del proyecto:** [`.claude/project-context.md`](.claude/project-context.md)
 
 ## Resources
 
