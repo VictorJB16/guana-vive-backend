@@ -39,4 +39,3 @@ export const PUBLICATION_SUCCESS_MESSAGES = {
   DELETED: 'Publicación eliminada exitosamente',
   STATUS_CHANGED: 'Estado de la publicación actualizado',
 };
-

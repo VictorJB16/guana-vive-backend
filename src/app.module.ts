@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PublicationsModule } from './publications/publications.module';
+import { CategoriesModule } from './categories/categories.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 
@@ -52,6 +54,8 @@ import jwtConfig from './config/jwt.config';
     UsersModule,
     AuthModule,
     PublicationsModule,
+    CategoriesModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

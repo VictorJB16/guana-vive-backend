@@ -15,7 +15,6 @@ import { Publication } from './entities/publication.entity';
 import { ImageService } from './image.service';
 import { UserRole } from '../users/types/user.enum';
 import {
-  PublicationCategory,
   PublicationStatus,
   PublicationSortBy,
   SortOrder,
@@ -56,7 +55,9 @@ export class PublicationsService {
         : null;
 
       const publicationEntity = this.publicationRepository.create({
-        ...createPublicationDto,
+        title: createPublicationDto.title,
+        content: createPublicationDto.content,
+        categoryId: createPublicationDto.categoryId,
         authorId,
         status: createPublicationDto.status || PublicationStatus.DRAFT,
         imageUrl: processedImageUrl || undefined,
@@ -77,9 +78,7 @@ export class PublicationsService {
         `Failed to create publication: ${errorMessage}`,
         errorStack,
       );
-      throw new BadRequestException(
-        PUBLICATION_ERROR_MESSAGES.CREATION_FAILED,
-      );
+      throw new BadRequestException(PUBLICATION_ERROR_MESSAGES.CREATION_FAILED);
     }
   }
 
@@ -115,14 +114,15 @@ export class PublicationsService {
       search,
     });
 
-    const [publications, total] =
-      await this.publicationRepository.findAndCount({
+    const [publications, total] = await this.publicationRepository.findAndCount(
+      {
         where: whereConditions,
         order: { [sortBy]: order },
         skip,
         take: validatedLimit,
         relations: ['author'],
-      });
+      },
+    );
 
     const totalPages = Math.ceil(total / validatedLimit);
 
@@ -175,11 +175,11 @@ export class PublicationsService {
    * Obtiene todas las publicaciones por categoría
    */
   async findByCategory(
-    category: PublicationCategory,
+    categoryId: string,
     options: IFindPublicationsOptions = {},
   ): Promise<IPaginatedResponse<Publication>> {
-    this.logger.log(`Fetching publications for category: ${category}`);
-    return this.findAll({ ...options, category });
+    this.logger.log(`Fetching publications for category: ${categoryId}`);
+    return this.findAll({ ...options, category: categoryId });
   }
 
   /**
@@ -248,9 +248,7 @@ export class PublicationsService {
     try {
       const updatedPublication =
         await this.publicationRepository.save(publication);
-      this.logger.log(
-        `Publication status changed successfully for ID: ${id}`,
-      );
+      this.logger.log(`Publication status changed successfully for ID: ${id}`);
       return this.findOne(updatedPublication.id);
     } catch (error) {
       const errorMessage =
@@ -384,9 +382,7 @@ export class PublicationsService {
         `Failed to approve/reject publication: ${errorMessage}`,
         errorStack,
       );
-      throw new BadRequestException(
-        'Error al aprobar/rechazar la publicación',
-      );
+      throw new BadRequestException('Error al aprobar/rechazar la publicación');
     }
   }
 
@@ -487,7 +483,7 @@ export class PublicationsService {
    * Construye las condiciones WHERE para consultas
    */
   private buildWhereConditions(filters: {
-    category?: PublicationCategory;
+    category?: string;
     status?: PublicationStatus;
     authorId?: string;
     search?: string;
@@ -496,7 +492,7 @@ export class PublicationsService {
     const baseCondition: FindOptionsWhere<Publication> = {};
 
     if (filters.category) {
-      baseCondition.category = filters.category;
+      baseCondition.categoryId = filters.category;
     }
 
     if (filters.status) {
@@ -520,4 +516,3 @@ export class PublicationsService {
     return conditions;
   }
 }
-

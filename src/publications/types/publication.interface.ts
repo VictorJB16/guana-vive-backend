@@ -1,4 +1,4 @@
-import { PublicationCategory, PublicationStatus } from './publication.enum';
+import { PublicationStatus } from './publication.enum';
 
 /**
  * Opciones para buscar publicaciones
@@ -8,7 +8,7 @@ export interface IFindPublicationsOptions {
   limit?: number;
   sortBy?: PublicationSortBy;
   order?: SortOrder;
-  category?: PublicationCategory;
+  category?: string;
   status?: PublicationStatus;
   authorId?: string;
   search?: string;
@@ -59,4 +59,3 @@ export interface PublicationQueryParams {
   authorId?: string;
   search?: string;
 }
-

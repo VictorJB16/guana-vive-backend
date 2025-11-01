@@ -9,12 +9,13 @@ import {
   Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { PublicationCategory, PublicationStatus } from '../types/publication.enum';
+import { PublicationStatus } from '../types/publication.enum';
 import { PUBLICATION_CONSTANTS } from '../types/publication.constants';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('publications')
 @Index(['status'])
-@Index(['category'])
+@Index(['categoryId'])
 @Index(['authorId'])
 export class Publication {
   @PrimaryGeneratedColumn('uuid')
@@ -33,11 +34,17 @@ export class Publication {
   content: string;
 
   @Column({
-    type: 'enum',
-    enum: PublicationCategory,
-    comment: 'Categoría de la publicación',
+    type: 'uuid',
+    nullable: true,
+    comment: 'ID de la categoría',
   })
-  category: PublicationCategory;
+  categoryId?: string;
+
+  @ManyToOne(() => Category, (category) => category.publications, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'categoryId' })
+  category?: Category;
 
   @Column({
     type: 'enum',
@@ -95,4 +102,3 @@ export class Publication {
     return this.authorId === userId;
   }
 }
-
