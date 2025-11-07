@@ -10,7 +10,8 @@ export class UpdateImageDto {
       require_protocol: true,
     },
     {
-      message: 'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
+      message:
+        'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
     },
   )
   @IsNotEmpty({ message: 'La URL de la imagen es requerida' })

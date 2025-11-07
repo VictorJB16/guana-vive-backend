@@ -162,7 +162,7 @@ export class AuthService {
    */
   private verifyRefreshToken(token: string): JwtPayload {
     const refreshSecret = this.getRefreshSecret();
-    
+
     const payload = this.jwtService.verify<JwtPayload>(token, {
       secret: refreshSecret,
     });
@@ -179,7 +179,7 @@ export class AuthService {
    */
   private verifyAccessToken(token: string): JwtPayload {
     const secret = this.getJwtSecret();
-    
+
     const payload = this.jwtService.verify<JwtPayload>(token, {
       secret,
     });

@@ -12,4 +12,3 @@ import { Publication } from './entities/publication.entity';
   exports: [PublicationsService, ImageService],
 })
 export class PublicationsModule {}
-

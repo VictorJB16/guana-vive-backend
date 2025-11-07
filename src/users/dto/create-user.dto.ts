@@ -25,7 +25,8 @@ export class CreateUserDto {
     message: `La contraseña no puede tener más de ${USER_CONSTANTS.PASSWORD.MAX_LENGTH} caracteres`,
   })
   @Matches(USER_CONSTANTS.VALIDATION.PASSWORD_REGEX, {
-    message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
+    message:
+      'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
   })
   readonly password: string;
 

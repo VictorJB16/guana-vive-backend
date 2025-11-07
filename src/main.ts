@@ -20,13 +20,20 @@ async function bootstrap() {
   // Configuración de CORS - Permitir frontend Vite
   app.enableCors({
     origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:5173', // Vite dev server
-      'http://localhost:3000',
+      'http://localhost:5173', // Vite dev server default
+      'http://localhost:5174', // Vite dev server puerto alternativo
+      'http://localhost:3000', // Otras apps
+      'http://localhost:3001', // Otras apps
       'http://localhost:4173', // Vite preview
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+    ],
   });
 
   // Obtener el puerto de las variables de entorno

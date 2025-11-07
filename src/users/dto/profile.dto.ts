@@ -49,7 +49,13 @@ export class UpdateProfileDto {
   readonly bio?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'La fecha de nacimiento debe tener un formato válido (YYYY-MM-DD)' })
+  @IsDateString(
+    {},
+    {
+      message:
+        'La fecha de nacimiento debe tener un formato válido (YYYY-MM-DD)',
+    },
+  )
   readonly dateOfBirth?: string;
 
   @IsOptional()

@@ -6,7 +6,10 @@ import {
   MaxLength,
   IsUrl,
 } from 'class-validator';
-import { PublicationCategory, PublicationStatus } from '../types/publication.enum';
+import {
+  PublicationCategory,
+  PublicationStatus,
+} from '../types/publication.enum';
 import { PUBLICATION_CONSTANTS } from '../types/publication.constants';
 
 /**
@@ -34,13 +37,15 @@ export class UpdatePublicationDto {
   content?: string;
 
   @IsEnum(PublicationCategory, {
-    message: 'La categoría debe ser: danza, gastronomia, retahilero, artista_local o grupo_musica',
+    message:
+      'La categoría debe ser: danza, gastronomia, retahilero, artista_local o grupo_musica',
   })
   @IsOptional()
   category?: PublicationCategory;
 
   @IsEnum(PublicationStatus, {
-    message: 'El estado debe ser: borrador, publicado, archivado o pendiente_revision',
+    message:
+      'El estado debe ser: borrador, publicado, archivado o pendiente_revision',
   })
   @IsOptional()
   status?: PublicationStatus;
@@ -51,10 +56,10 @@ export class UpdatePublicationDto {
       require_protocol: true,
     },
     {
-      message: 'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
+      message:
+        'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
     },
   )
   @IsOptional()
   imageUrl?: string;
 }
-

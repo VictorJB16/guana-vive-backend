@@ -17,7 +17,12 @@ import {
   Request,
 } from '@nestjs/common';
 import { PublicationsService } from './publications.service';
-import { CreatePublicationDto, UpdatePublicationDto, UpdateImageDto, ApprovePublicationDto } from './dto';
+import {
+  CreatePublicationDto,
+  UpdatePublicationDto,
+  UpdateImageDto,
+  ApprovePublicationDto,
+} from './dto';
 import {
   PublicationCategory,
   PublicationStatus,
@@ -430,8 +435,10 @@ export class PublicationsController {
       `Admin approving/rejecting publication with ID: ${id} with status: ${approveDto.status}`,
     );
 
-    const publication =
-      await this.publicationsService.approvePublication(id, approveDto);
+    const publication = await this.publicationsService.approvePublication(
+      id,
+      approveDto,
+    );
 
     return {
       success: true,
@@ -460,7 +467,8 @@ export class PublicationsController {
       search: queryParams.search,
     };
 
-    const result = await this.publicationsService.getPendingPublications(options);
+    const result =
+      await this.publicationsService.getPendingPublications(options);
 
     return {
       success: true,
@@ -491,4 +499,3 @@ export class PublicationsController {
     };
   }
 }
-

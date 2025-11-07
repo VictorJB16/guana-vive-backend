@@ -59,7 +59,12 @@ export interface SubscriptionStats {
 
 export interface RecentActivity {
   id: string;
-  type: 'publication_approved' | 'publication_rejected' | 'user_created' | 'subscription_created' | 'category_created';
+  type:
+    | 'publication_approved'
+    | 'publication_rejected'
+    | 'user_created'
+    | 'subscription_created'
+    | 'category_created';
   title: string;
   description: string;
   entityId: string;
