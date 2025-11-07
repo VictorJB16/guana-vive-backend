@@ -294,6 +294,41 @@ export class UsersService {
   }
 
   /**
+   * Cambia el rol de un usuario (solo administradores)
+   */
+  async changeUserRole(
+    id: string,
+    newRole: UserRole,
+  ): Promise<IUserWithoutPassword> {
+    this.logger.log(`Changing role for user with ID: ${id} to ${newRole}`);
+
+    const user = await this.findUserByIdOrThrow(id);
+
+    if (user.role === newRole) {
+      throw new BadRequestException(
+        `El usuario ya tiene el rol: ${newRole}`,
+      );
+    }
+
+    user.role = newRole;
+
+    try {
+      const updatedUser = await this.userRepository.save(user);
+      this.logger.log(`User role changed successfully for ID: ${id}`);
+      return this.transformToSafeUser(updatedUser);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to change user role: ${errorMessage}`,
+        errorStack,
+      );
+      throw new BadRequestException('Error al cambiar el rol del usuario');
+    }
+  }
+
+  /**
    * Valida las credenciales de un usuario
    */
   async validateUser(

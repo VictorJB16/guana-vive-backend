@@ -24,6 +24,7 @@ import {
   ChangePasswordDto,
   UpdateProfileDto,
   UploadAvatarDto,
+  ChangeUserRoleDto,
 } from './dto';
 import {
   UserResponse,
@@ -284,6 +285,30 @@ export class UsersController {
     return {
       success: true,
       message: 'Avatar actualizado exitosamente',
+      data: user as UserResponse,
+    };
+  }
+
+  /**
+   * Cambiar rol de un usuario (solo administradores)
+   * PATCH /users/:id/role
+   */
+  @Patch(':id/role')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changeUserRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() changeRoleDto: ChangeUserRoleDto,
+  ): Promise<UpdateUserResponse> {
+    this.logger.log(
+      `Admin changing role for user ${id} to ${changeRoleDto.role}`,
+    );
+
+    const user = await this.usersService.changeUserRole(id, changeRoleDto.role);
+
+    return {
+      success: true,
+      message: `Rol de usuario actualizado a ${changeRoleDto.role}`,
       data: user as UserResponse,
     };
   }

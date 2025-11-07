@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { PublicationsModule } from './publications/publications.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { AdminModule } from './admin/admin.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 
@@ -56,6 +57,7 @@ import jwtConfig from './config/jwt.config';
     PublicationsModule,
     CategoriesModule,
     SubscriptionsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
