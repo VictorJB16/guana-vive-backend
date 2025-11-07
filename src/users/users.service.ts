@@ -305,9 +305,7 @@ export class UsersService {
     const user = await this.findUserByIdOrThrow(id);
 
     if (user.role === newRole) {
-      throw new BadRequestException(
-        `El usuario ya tiene el rol: ${newRole}`,
-      );
+      throw new BadRequestException(`El usuario ya tiene el rol: ${newRole}`);
     }
 
     user.role = newRole;

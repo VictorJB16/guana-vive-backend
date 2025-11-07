@@ -311,7 +311,9 @@ export class AdminService {
     limit: number = 10,
     page: number = 1,
   ): Promise<{ data: RecentActivity[]; meta: any }> {
-    this.logger.log(`Fetching recent activities (limit: ${limit}, page: ${page})`);
+    this.logger.log(
+      `Fetching recent activities (limit: ${limit}, page: ${page})`,
+    );
 
     const activities: RecentActivity[] = [];
     const skip = (page - 1) * limit;
@@ -332,7 +334,7 @@ export class AdminService {
         pub.status === PublicationStatus.PUBLISHED
           ? 'publication_approved'
           : 'publication_rejected';
-      
+
       activities.push({
         id: `pub-${pub.id}`,
         type: activityType as any,

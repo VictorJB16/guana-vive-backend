@@ -83,4 +83,3 @@ export class CreatePublicationsTable1758760000000
     await queryRunner.query(`DROP TYPE "publication_category_enum"`);
   }
 }
-

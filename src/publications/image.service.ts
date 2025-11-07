@@ -8,7 +8,9 @@ export class ImageService {
    * Valida y procesa una URL de imagen
    */
   processImageUrl(imageUrl: string, publicationTitle: string): string | null {
-    this.logger.log(`Processing image URL for publication: ${publicationTitle}`);
+    this.logger.log(
+      `Processing image URL for publication: ${publicationTitle}`,
+    );
 
     if (!imageUrl) {
       return null;
@@ -17,16 +19,27 @@ export class ImageService {
     // Validar que sea una URL válida
     try {
       const url = new URL(imageUrl);
-      
+
       // Verificar que sea HTTP o HTTPS
       if (!['http:', 'https:'].includes(url.protocol)) {
-        throw new BadRequestException('La URL de la imagen debe usar protocolo HTTP o HTTPS');
+        throw new BadRequestException(
+          'La URL de la imagen debe usar protocolo HTTP o HTTPS',
+        );
       }
 
       // Verificar que sea una imagen (extensiones comunes)
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      const imageExtensions = [
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.webp',
+        '.svg',
+      ];
       const pathname = url.pathname.toLowerCase();
-      const hasImageExtension = imageExtensions.some(ext => pathname.endsWith(ext));
+      const hasImageExtension = imageExtensions.some((ext) =>
+        pathname.endsWith(ext),
+      );
 
       if (!hasImageExtension && !url.hostname.includes('placeholder')) {
         this.logger.warn(`URL may not be an image: ${imageUrl}`);
@@ -44,16 +57,21 @@ export class ImageService {
    */
   generatePlaceholderImage(category: string, title: string): string {
     const categoryImages = {
-      danza: 'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop',
-      gastronomia: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=600&fit=crop',
-      retahilero: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=600&fit=crop',
-      artista_local: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
-      grupo_musica: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      danza:
+        'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop',
+      gastronomia:
+        'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=600&fit=crop',
+      retahilero:
+        'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=600&fit=crop',
+      artista_local:
+        'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
+      grupo_musica:
+        'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
     };
 
     const baseImage = categoryImages[category] || categoryImages.artista_local;
     const encodedTitle = encodeURIComponent(title);
-    
+
     return `${baseImage}&text=${encodedTitle}`;
   }
 
@@ -62,7 +80,7 @@ export class ImageService {
    */
   async validateImageSize(imageUrl: string): Promise<boolean> {
     this.logger.log(`Validating image size for: ${imageUrl}`);
-    
+
     try {
       // En una implementación real, harías una petición HEAD para obtener el Content-Length
       // Por ahora, simulamos que todas las imágenes son válidas
@@ -76,7 +94,10 @@ export class ImageService {
   /**
    * Genera una URL de imagen optimizada para diferentes tamaños
    */
-  generateOptimizedImageUrl(imageUrl: string, size: 'thumbnail' | 'medium' | 'large' = 'medium'): string | null {
+  generateOptimizedImageUrl(
+    imageUrl: string,
+    size: 'thumbnail' | 'medium' | 'large' = 'medium',
+  ): string | null {
     if (!imageUrl) {
       return null;
     }

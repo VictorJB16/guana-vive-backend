@@ -20,7 +20,9 @@ export class UpdateUserDto extends PartialType(
 ) {
   @IsOptional()
   @IsEmail({}, { message: 'Debe proporcionar un email válido' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase().trim() : value))
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   readonly email?: string;
 
   @IsOptional()
@@ -57,7 +59,9 @@ export class UpdateUserDto extends PartialType(
 // DTO específico para login
 export class LoginDto {
   @IsEmail({}, { message: 'Debe proporcionar un email válido' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase().trim() : value))
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   readonly email: string;
 
   @IsString({ message: 'La contraseña debe ser una cadena de texto' })
@@ -81,7 +85,8 @@ export class ChangePasswordDto {
     message: `La nueva contraseña no puede tener más de ${USER_CONSTANTS.PASSWORD.MAX_LENGTH} caracteres`,
   })
   @Matches(USER_CONSTANTS.VALIDATION.PASSWORD_REGEX, {
-    message: 'La nueva contraseña debe contener al menos una mayúscula, una minúscula y un número',
+    message:
+      'La nueva contraseña debe contener al menos una mayúscula, una minúscula y un número',
   })
   readonly newPassword: string;
 }
@@ -89,7 +94,9 @@ export class ChangePasswordDto {
 // DTO para validación de usuario
 export class ValidateUserDto {
   @IsEmail({}, { message: 'Debe proporcionar un email válido' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase().trim() : value))
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   readonly email: string;
 
   @IsString({ message: 'La contraseña debe ser una cadena de texto' })
