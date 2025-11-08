@@ -53,7 +53,7 @@ export class AdminService {
       totalPublications,
       publishedPublications,
       pendingPublications,
-      rejectedPublications,
+      archivedPublications,
       draftPublications,
     ] = await Promise.all([
       this.publicationRepository.count(),
@@ -61,10 +61,10 @@ export class AdminService {
         where: { status: PublicationStatus.PUBLISHED },
       }),
       this.publicationRepository.count({
-        where: { status: PublicationStatus.PENDING },
+        where: { status: PublicationStatus.PENDING_REVIEW },
       }),
       this.publicationRepository.count({
-        where: { status: PublicationStatus.REJECTED },
+        where: { status: PublicationStatus.ARCHIVED },
       }),
       this.publicationRepository.count({
         where: { status: PublicationStatus.DRAFT },
@@ -107,7 +107,7 @@ export class AdminService {
       totalPublications,
       publishedPublications,
       pendingPublications,
-      rejectedPublications,
+      archivedPublications,
       draftPublications,
       totalCategories,
       totalSubscriptions,
@@ -184,11 +184,9 @@ export class AdminService {
     const [
       totalPublications,
       published,
-      pending,
-      rejected,
+      pendingReview,
       draft,
       archived,
-      pendingReview,
       publicationsCreatedToday,
       publicationsCreatedThisWeek,
       publicationsCreatedThisMonth,
@@ -198,19 +196,13 @@ export class AdminService {
         where: { status: PublicationStatus.PUBLISHED },
       }),
       this.publicationRepository.count({
-        where: { status: PublicationStatus.PENDING },
-      }),
-      this.publicationRepository.count({
-        where: { status: PublicationStatus.REJECTED },
+        where: { status: PublicationStatus.PENDING_REVIEW },
       }),
       this.publicationRepository.count({
         where: { status: PublicationStatus.DRAFT },
       }),
       this.publicationRepository.count({
         where: { status: PublicationStatus.ARCHIVED },
-      }),
-      this.publicationRepository.count({
-        where: { status: PublicationStatus.PENDING_REVIEW },
       }),
       this.publicationRepository.count({
         where: { createdAt: MoreThanOrEqual(today) },
@@ -226,11 +218,9 @@ export class AdminService {
     return {
       totalPublications,
       published,
-      pending,
-      rejected,
+      pendingReview,
       draft,
       archived,
-      pendingReview,
       publicationsCreatedToday,
       publicationsCreatedThisWeek,
       publicationsCreatedThisMonth,
@@ -318,11 +308,11 @@ export class AdminService {
     const activities: RecentActivity[] = [];
     const skip = (page - 1) * limit;
 
-    // Obtener últimas publicaciones aprobadas/rechazadas
+    // Obtener últimas publicaciones publicadas y archivadas
     const recentPublications = await this.publicationRepository.find({
       where: [
         { status: PublicationStatus.PUBLISHED },
-        { status: PublicationStatus.REJECTED },
+        { status: PublicationStatus.ARCHIVED },
       ],
       order: { updatedAt: 'DESC' },
       take: limit,
@@ -339,7 +329,7 @@ export class AdminService {
         id: `pub-${pub.id}`,
         type: activityType as any,
         title: pub.title,
-        description: `Publicación "${pub.title}" fue ${pub.status === PublicationStatus.PUBLISHED ? 'aprobada' : 'rechazada'}`,
+        description: `Publicación "${pub.title}" fue ${pub.status === PublicationStatus.PUBLISHED ? 'publicada' : 'archivada'}`,
         entityId: pub.id,
         entityType: 'publication',
         createdAt: pub.updatedAt,

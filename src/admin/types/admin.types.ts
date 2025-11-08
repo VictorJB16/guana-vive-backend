@@ -5,7 +5,7 @@ export interface DashboardStats {
   totalPublications: number;
   publishedPublications: number;
   pendingPublications: number;
-  rejectedPublications: number;
+  archivedPublications: number;
   draftPublications: number;
   totalCategories: number;
   totalSubscriptions: number;
@@ -28,11 +28,9 @@ export interface UserStats {
 export interface PublicationStats {
   totalPublications: number;
   published: number;
-  pending: number;
-  rejected: number;
+  pendingReview: number;
   draft: number;
   archived: number;
-  pendingReview: number;
   publicationsCreatedToday: number;
   publicationsCreatedThisWeek: number;
   publicationsCreatedThisMonth: number;
