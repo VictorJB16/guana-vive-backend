@@ -27,6 +27,10 @@ export class ImageService {
         );
       }
 
+      // Permitir localhost en desarrollo
+      const isLocalhost =
+        url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+
       // Verificar que sea una imagen (extensiones comunes)
       const imageExtensions = [
         '.jpg',
@@ -41,7 +45,12 @@ export class ImageService {
         pathname.endsWith(ext),
       );
 
-      if (!hasImageExtension && !url.hostname.includes('placeholder')) {
+      // Solo advertir si no es localhost y no tiene extensión de imagen
+      if (
+        !hasImageExtension &&
+        !url.hostname.includes('placeholder') &&
+        !isLocalhost
+      ) {
         this.logger.warn(`URL may not be an image: ${imageUrl}`);
       }
 

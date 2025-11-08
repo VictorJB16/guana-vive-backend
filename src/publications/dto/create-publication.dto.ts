@@ -5,11 +5,11 @@ import {
   MinLength,
   MaxLength,
   IsOptional,
-  IsUrl,
   IsUUID,
 } from 'class-validator';
 import { PublicationStatus } from '../types/publication.enum';
 import { PUBLICATION_CONSTANTS } from '../types/publication.constants';
+import { IsUrlOrLocalhost } from '../../common/validators/is-url-or-localhost.validator';
 
 /**
  * DTO para crear una nueva publicación
@@ -46,16 +46,9 @@ export class CreatePublicationDto {
   @IsOptional()
   status?: PublicationStatus;
 
-  @IsUrl(
-    {
-      protocols: ['http', 'https'],
-      require_protocol: true,
-    },
-    {
-      message:
-        'La URL de la imagen debe ser válida y usar protocolo HTTP o HTTPS',
-    },
-  )
   @IsOptional()
+  @IsUrlOrLocalhost({
+    message: 'La URL de la imagen no es válida',
+  })
   imageUrl?: string;
 }
