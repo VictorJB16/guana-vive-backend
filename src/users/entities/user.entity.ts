@@ -121,16 +121,38 @@ export class User {
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
     if (this.password && !this.isPasswordHashed()) {
+      console.log('[hashPassword] Hashing password:', {
+        passwordLength: this.password.length,
+        isHashed: this.isPasswordHashed(),
+      });
       const saltRounds = USER_CONSTANTS.PASSWORD.SALT_ROUNDS;
       this.password = await bcrypt.hash(this.password, saltRounds);
+      console.log('[hashPassword] Password hashed:', {
+        hashedLength: this.password.length,
+        hashedPrefix: this.password.substring(0, 10),
+      });
+    } else {
+      console.log(
+        '[hashPassword] Skipping hash - password already hashed or empty',
+      );
     }
   }
 
   async validatePassword(plainPassword: string): Promise<boolean> {
     if (!plainPassword || !this.password) {
+      console.log('[validatePassword] Missing password or plainPassword');
       return false;
     }
-    return bcrypt.compare(plainPassword, this.password);
+    
+    console.log('[validatePassword] Comparing passwords:', {
+      plainPasswordLength: plainPassword.length,
+      hashedPasswordLength: this.password.length,
+      hashedPasswordPrefix: this.password.substring(0, 10),
+    });
+    
+    const result = await bcrypt.compare(plainPassword, this.password);
+    console.log('[validatePassword] Result:', result);
+    return result;
   }
 
   getFullName(): string {
