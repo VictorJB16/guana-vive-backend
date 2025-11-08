@@ -10,6 +10,7 @@ import { PublicationsModule } from './publications/publications.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { AdminModule } from './admin/admin.module';
+import { RecaptchaModule } from './common/recaptcha/recaptcha.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 
@@ -58,6 +59,7 @@ import jwtConfig from './config/jwt.config';
     CategoriesModule,
     SubscriptionsModule,
     AdminModule,
+    RecaptchaModule, // Módulo global para reCAPTCHA
   ],
   controllers: [AppController],
   providers: [AppService],

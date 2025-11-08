@@ -36,8 +36,8 @@ export class CreatePublicationDto {
   content: string;
 
   @IsUUID('4', { message: 'La categoría debe ser un UUID válido' })
-  @IsOptional()
-  categoryId?: string;
+  @IsNotEmpty({ message: 'La categoría es requerida' })
+  categoryId: string;
 
   @IsEnum(PublicationStatus, {
     message:

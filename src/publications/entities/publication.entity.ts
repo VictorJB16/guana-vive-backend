@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { PublicationStatus } from '../types/publication.enum';
-import { PUBLICATION_CONSTANTS } from '../types/publication.constants';
 import { Category } from '../../categories/entities/category.entity';
 
 @Entity('publications')
@@ -22,7 +21,7 @@ export class Publication {
   id: string;
 
   @Column({
-    length: PUBLICATION_CONSTANTS.TITLE.MAX_LENGTH,
+    length: 255,
     comment: 'Título de la publicación',
   })
   title: string;
@@ -35,10 +34,10 @@ export class Publication {
 
   @Column({
     type: 'uuid',
-    nullable: true,
+    nullable: false,
     comment: 'ID de la categoría',
   })
-  categoryId?: string;
+  categoryId: string;
 
   @ManyToOne(() => Category, (category) => category.publications, {
     eager: true,

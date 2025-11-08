@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class LoginDto {
@@ -9,4 +9,8 @@ export class LoginDto {
   @IsString({ message: 'La contraseña debe ser una cadena de texto' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   readonly password: string;
+
+  @IsOptional()
+  @IsString({ message: 'El token de reCAPTCHA debe ser una cadena de texto' })
+  readonly recaptchaToken?: string;
 }

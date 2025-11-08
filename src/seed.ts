@@ -11,6 +11,7 @@ import {
   SubscriptionStatus,
 } from './subscriptions/entities/subscription.entity';
 import { Category } from './categories/entities/category.entity';
+import { DataSource } from 'typeorm';
 
 /**
  * Script de seed para poblar la base de datos con datos de prueba
@@ -36,66 +37,89 @@ async function bootstrap() {
     const publicationsService = app.get(PublicationsService);
 
     // ============================================
+    // 0. BORRAR TODOS LOS DATOS EXISTENTES
+    // ============================================
+    console.log('🗑️  Borrando todos los datos existentes...\n');
+
+    // Obtener el repositorio de datos desde TypeORM
+    const dataSource = app.get(DataSource);
+
+    // Borrar en orden debido a las relaciones de foreign keys
+    // Usamos TRUNCATE CASCADE para borrar todo de manera eficiente
+    try {
+      console.log('  🗑️  Borrando publicaciones...');
+      await dataSource.query('TRUNCATE TABLE publications CASCADE');
+    } catch {
+      console.log('  ⚠️  Tabla publications no existe o está vacía');
+    }
+
+    try {
+      console.log('  🗑️  Borrando suscripciones...');
+      await dataSource.query('TRUNCATE TABLE subscriptions CASCADE');
+    } catch {
+      console.log('  ⚠️  Tabla subscriptions no existe o está vacía');
+    }
+
+    try {
+      console.log('  🗑️  Borrando categorías...');
+      await dataSource.query('TRUNCATE TABLE categories CASCADE');
+    } catch {
+      console.log('  ⚠️  Tabla categories no existe o está vacía');
+    }
+
+    try {
+      console.log('  🗑️  Borrando refresh tokens...');
+      await dataSource.query('TRUNCATE TABLE refresh_tokens CASCADE');
+    } catch {
+      console.log('  ⚠️  Tabla refresh_tokens no existe o está vacía');
+    }
+
+    try {
+      console.log('  🗑️  Borrando usuarios...');
+      await dataSource.query('TRUNCATE TABLE users CASCADE');
+    } catch {
+      console.log('  ⚠️  Tabla users no existe o está vacía');
+    }
+
+    console.log('\n✅ Todos los datos han sido borrados\n');
+
+    // ============================================
     // 1. CREAR USUARIOS
     // ============================================
     console.log('👥 Creando usuarios...');
 
     // Usuario Admin
-    let adminUser;
-    try {
-      adminUser = await usersService.findByEmail('admin@guanavive.com', false);
-      console.log('✅ Usuario Admin ya existe');
-    } catch {
-      adminUser = await usersService.create({
-        email: 'admin@guanavive.com',
-        password: ADMIN_PASSWORD,
-        firstName: 'Admin',
-        lastName: 'GuanaVive',
-        role: UserRole.ADMIN,
-        isActive: true,
-      });
-      console.log('✅ Usuario Admin creado');
-    }
+    const adminUser = await usersService.create({
+      email: 'admin@guanavive.com',
+      password: ADMIN_PASSWORD,
+      firstName: 'Admin',
+      lastName: 'GuanaVive',
+      role: UserRole.ADMIN,
+      isActive: true,
+    });
+    console.log('✅ Usuario Admin creado');
 
     // Usuario Regular
-    let regularUser;
-    try {
-      regularUser = await usersService.findByEmail(
-        'usuario@guanavive.com',
-        false,
-      );
-      console.log('✅ Usuario Regular ya existe');
-    } catch {
-      regularUser = await usersService.create({
-        email: 'usuario@guanavive.com',
-        password: USER_PASSWORD,
-        firstName: 'Juan',
-        lastName: 'Pérez',
-        role: UserRole.USER,
-        isActive: true,
-      });
-      console.log('✅ Usuario Regular creado');
-    }
+    const regularUser = await usersService.create({
+      email: 'usuario@guanavive.com',
+      password: USER_PASSWORD,
+      firstName: 'Juan',
+      lastName: 'Pérez',
+      role: UserRole.USER,
+      isActive: true,
+    });
+    console.log('✅ Usuario Regular creado');
 
     // Usuario Regular 2
-    let regularUser2;
-    try {
-      regularUser2 = await usersService.findByEmail(
-        'maria@guanavive.com',
-        false,
-      );
-      console.log('✅ Usuario Regular 2 ya existe');
-    } catch {
-      regularUser2 = await usersService.create({
-        email: 'maria@guanavive.com',
-        password: USER_PASSWORD,
-        firstName: 'María',
-        lastName: 'Gómez',
-        role: UserRole.USER,
-        isActive: true,
-      });
-      console.log('✅ Usuario Regular 2 creado');
-    }
+    const regularUser2 = await usersService.create({
+      email: 'maria@guanavive.com',
+      password: USER_PASSWORD,
+      firstName: 'María',
+      lastName: 'Gómez',
+      role: UserRole.USER,
+      isActive: true,
+    });
+    console.log('✅ Usuario Regular 2 creado');
 
     // ============================================
     // 2. CREAR CATEGORÍAS
@@ -116,26 +140,9 @@ async function bootstrap() {
 
     const categories: Category[] = [];
     for (const catData of categoriesData) {
-      try {
-        const existing = await categoriesService.findAll({
-          page: 1,
-          limit: 1,
-          search: catData.name,
-        });
-        if (existing.data.length > 0) {
-          categories.push(existing.data[0]);
-          console.log(`✅ Categoría "${catData.name}" ya existe`);
-        } else {
-          const category = await categoriesService.create(catData);
-          categories.push(category);
-          console.log(`✅ Categoría "${catData.name}" creada`);
-        }
-      } catch (error: any) {
-        console.log(
-          `⚠️  Error con categoría "${catData.name}":`,
-          error.message,
-        );
-      }
+      const category = await categoriesService.create(catData);
+      categories.push(category);
+      console.log(`✅ Categoría "${catData.name}" creada`);
     }
 
     // ============================================
@@ -143,27 +150,19 @@ async function bootstrap() {
     // ============================================
     console.log('\n💳 Creando suscripciones...');
 
-    try {
-      await subscriptionsService.create({
-        userId: regularUser.id,
-        plan: SubscriptionPlan.PREMIUM,
-        status: SubscriptionStatus.ACTIVE,
-      });
-      console.log('✅ Suscripción Premium para usuario regular creada');
-    } catch (error) {
-      console.log('⚠️  Suscripción ya existe o error:', error.message);
-    }
+    await subscriptionsService.create({
+      userId: regularUser.id,
+      plan: SubscriptionPlan.PREMIUM,
+      status: SubscriptionStatus.ACTIVE,
+    });
+    console.log('✅ Suscripción Premium para usuario regular creada');
 
-    try {
-      await subscriptionsService.create({
-        userId: regularUser2.id,
-        plan: SubscriptionPlan.BASIC,
-        status: SubscriptionStatus.ACTIVE,
-      });
-      console.log('✅ Suscripción Básica para usuario regular 2 creada');
-    } catch (error) {
-      console.log('⚠️  Suscripción ya existe o error:', error.message);
-    }
+    await subscriptionsService.create({
+      userId: regularUser2.id,
+      plan: SubscriptionPlan.BASIC,
+      status: SubscriptionStatus.ACTIVE,
+    });
+    console.log('✅ Suscripción Básica para usuario regular 2 creada');
 
     // ============================================
     // 4. CREAR PUBLICACIONES
@@ -179,7 +178,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Música')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/6e/f5/c1/6ef5c1ab-18ef-857a-2eaa-64872319ae83/198026841780.jpg/600x600bf-60.jpg',
+        imageUrl:
+          'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/6e/f5/c1/6ef5c1ab-18ef-857a-2eaa-64872319ae83/198026841780.jpg/600x600bf-60.jpg',
       },
       {
         title: 'Guadalupe Urbina - Cantautora Guanacasteca',
@@ -188,7 +188,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Música')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser.id,
-        imageUrl: 'https://www.teatronacional.go.cr/repositorio/detail/92-5388_imagen3.jpg',
+        imageUrl:
+          'https://www.teatronacional.go.cr/repositorio/detail/92-5388_imagen3.jpg',
       },
       {
         title: 'Los de la Bajura - Tradición Sabanera',
@@ -197,7 +198,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Música')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser2.id,
-        imageUrl: 'https://cloudfront-us-east-1.images.arcpublishing.com/gruponacion/IJXGQEJZ7FEVTAO3YRGEG7JCMI.jpg',
+        imageUrl:
+          'https://cloudfront-us-east-1.images.arcpublishing.com/gruponacion/IJXGQEJZ7FEVTAO3YRGEG7JCMI.jpg',
       },
       {
         title: 'Malpaís - Raíces Guanacastecas',
@@ -206,7 +208,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Música')?.id,
         status: PublicationStatus.PENDING_REVIEW,
         authorId: regularUser.id,
-        imageUrl: 'https://sicultura-live.s3.amazonaws.com/public/media/malpais.jpg',
+        imageUrl:
+          'https://sicultura-live.s3.amazonaws.com/public/media/malpais.jpg',
       },
 
       // DANZA
@@ -217,7 +220,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Danza')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://guananoticias.com/wp-content/uploads/2022/06/IMG-20220627-WA0038-1000x600.jpg',
+        imageUrl:
+          'https://guananoticias.com/wp-content/uploads/2022/06/IMG-20220627-WA0038-1000x600.jpg',
       },
       {
         title: 'Taller de Danza Tradicional - Todos Bienvenidos',
@@ -226,7 +230,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Danza')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser2.id,
-        imageUrl: 'https://scontent-mia3-1.xx.fbcdn.net/v/t1.6435-9/67421925_2378009295596639_8824664137583026176_n.jpg',
+        imageUrl:
+          'https://scontent-mia3-1.xx.fbcdn.net/v/t1.6435-9/67421925_2378009295596639_8824664137583026176_n.jpg',
       },
 
       // ARTESANÍA
@@ -237,7 +242,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Artesanía')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser.id,
-        imageUrl: 'https://www.ecotranscostarica.com/wp-content/uploads/2016/04/Ecotrans-Im%C3%A1genes-Tours-400x300-05.png',
+        imageUrl:
+          'https://www.ecotranscostarica.com/wp-content/uploads/2016/04/Ecotrans-Im%C3%A1genes-Tours-400x300-05.png',
       },
       {
         title: 'Cerámica Tradicional Guanacasteca',
@@ -246,7 +252,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Artesanía')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://semanariouniversidad.com/wp-content/uploads/C09-Cer%C3%A1mica-1.jpg',
+        imageUrl:
+          'https://semanariouniversidad.com/wp-content/uploads/C09-Cer%C3%A1mica-1.jpg',
       },
       {
         title: 'Don Gilberto Duarte - Talabartero Tradicional',
@@ -255,7 +262,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Artesanía')?.id,
         status: PublicationStatus.DRAFT,
         authorId: regularUser2.id,
-        imageUrl: 'https://vozdeguanacaste.com/wp-content/uploads/2018/01/004.jpg',
+        imageUrl:
+          'https://vozdeguanacaste.com/wp-content/uploads/2018/01/004.jpg',
       },
 
       // GASTRONOMÍA
@@ -266,7 +274,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Gastronomía')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://www.nacion.com/resizer/v2/CQBHQ5ZYOFGBVP3QT4ASZX7EIA.jpg?auth=0f1b21f8f9b7a8a6c5d4e3f2a1b0c9d8e7f6a5b4&width=1440',
+        imageUrl:
+          'https://www.nacion.com/resizer/v2/CQBHQ5ZYOFGBVP3QT4ASZX7EIA.jpg?auth=0f1b21f8f9b7a8a6c5d4e3f2a1b0c9d8e7f6a5b4&width=1440',
       },
       {
         title: 'Cocina de Fogón - Tradición Familiar',
@@ -275,7 +284,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Gastronomía')?.id,
         status: PublicationStatus.PENDING_REVIEW,
         authorId: regularUser.id,
-        imageUrl: 'https://www.nacion.com/resizer/v2/TRADITIONAL-KITCHEN-GUANACASTE.jpg?auth=abc123&width=1200',
+        imageUrl:
+          'https://www.nacion.com/resizer/v2/TRADITIONAL-KITCHEN-GUANACASTE.jpg?auth=abc123&width=1200',
       },
 
       // ARTE
@@ -286,7 +296,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Arte')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser2.id,
-        imageUrl: 'https://www.nacion.com/resizer/v2/ART-EXHIBITION-GUANACASTE.jpg?auth=xyz789&width=1200',
+        imageUrl:
+          'https://www.nacion.com/resizer/v2/ART-EXHIBITION-GUANACASTE.jpg?auth=xyz789&width=1200',
       },
       {
         title: 'Carlos Leitón - Retahílero Nicoyano',
@@ -295,7 +306,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Arte')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser.id,
-        imageUrl: 'https://directoriobombasyretahilas.wordpress.com/wp-content/uploads/2021/10/carlos.jpg',
+        imageUrl:
+          'https://directoriobombasyretahilas.wordpress.com/wp-content/uploads/2021/10/carlos.jpg',
       },
       {
         title: 'Jorge Debravo - Poeta del Pueblo',
@@ -304,7 +316,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Arte')?.id,
         status: PublicationStatus.DRAFT,
         authorId: regularUser2.id,
-        imageUrl: 'https://www.nacion.com/resizer/v2/UDVRNJYEAZBP7N2KDYSCIB6V6I.jpg?auth=c217e2b40a63a91766070523f68c292a9296cbbe6172eb0fb7ad2448173723d4&width=1440',
+        imageUrl:
+          'https://www.nacion.com/resizer/v2/UDVRNJYEAZBP7N2KDYSCIB6V6I.jpg?auth=c217e2b40a63a91766070523f68c292a9296cbbe6172eb0fb7ad2448173723d4&width=1440',
       },
 
       // TURISMO
@@ -315,7 +328,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Turismo')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://sicultura-live.s3.amazonaws.com/public/media/68811416_641621039682343_7819470398864490496_n.jpg',
+        imageUrl:
+          'https://sicultura-live.s3.amazonaws.com/public/media/68811416_641621039682343_7819470398864490496_n.jpg',
       },
       {
         title: 'Fiestas Típicas Nacionales de Santa Cruz',
@@ -333,7 +347,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Turismo')?.id,
         status: PublicationStatus.PENDING_REVIEW,
         authorId: regularUser2.id,
-        imageUrl: 'https://guananoticias.com/wp-content/uploads/2024/01/lagarteada-festividad.jpg',
+        imageUrl:
+          'https://guananoticias.com/wp-content/uploads/2024/01/lagarteada-festividad.jpg',
       },
       {
         title: 'Recorrido por Nicoya - Cuna de la Cultura Chorotega',
@@ -342,7 +357,8 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Turismo')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: adminUser.id,
-        imageUrl: 'https://www.visitcentroamerica.com/wp-content/uploads/2019/05/nicoya-church-colonial.jpg',
+        imageUrl:
+          'https://www.visitcentroamerica.com/wp-content/uploads/2019/05/nicoya-church-colonial.jpg',
       },
       {
         title: 'Festival de Bombas y Retahílas - Patrimonio Cultural',
@@ -351,18 +367,29 @@ async function bootstrap() {
         categoryId: categories.find((c) => c.name === 'Turismo')?.id,
         status: PublicationStatus.PUBLISHED,
         authorId: regularUser.id,
-        imageUrl: 'https://guananoticias.com/wp-content/uploads/2023/07/festival-retahilas-cultura.jpg',
+        imageUrl:
+          'https://guananoticias.com/wp-content/uploads/2023/07/festival-retahilas-cultura.jpg',
       },
     ];
 
     for (const pubData of publicationsData) {
       try {
-        await publicationsService.create(pubData, pubData.authorId);
+        // Asegurar que categoryId no sea undefined antes de crear
+        if (!pubData.categoryId) {
+          console.log(
+            `⚠️  Publicación "${pubData.title}" omitida: categoría no encontrada`,
+          );
+          continue;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        await publicationsService.create(pubData as any, pubData.authorId);
         console.log(`✅ Publicación "${pubData.title}" creada`);
       } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Error desconocido';
         console.log(
           `⚠️  Error con publicación "${pubData.title}":`,
-          error.message,
+          errorMessage,
         );
       }
     }

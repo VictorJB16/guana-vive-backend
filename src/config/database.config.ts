@@ -20,7 +20,8 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     password,
     database: process.env.DB_NAME || 'guana_vive_db',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: process.env.NODE_ENV === 'development',
+    dropSchema: true, // TEMPORAL: Borrar todas las tablas y recrearlas
+    synchronize: true,
     logging: process.env.NODE_ENV === 'development',
     autoLoadEntities: true,
     ssl:

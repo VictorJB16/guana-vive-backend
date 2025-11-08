@@ -4,10 +4,10 @@
 export const PUBLICATION_CONSTANTS = {
   TITLE: {
     MIN_LENGTH: 5,
-    MAX_LENGTH: 200,
+    MAX_LENGTH: 255,
   },
   CONTENT: {
-    MIN_LENGTH: 10,
+    MIN_LENGTH: 20,
     MAX_LENGTH: 5000,
   },
   PAGINATION: {

@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
+import { RecaptchaService } from '../common/recaptcha/recaptcha.service';
 import { LoginDto, RegisterDto, RefreshTokenDto } from './dto';
 import type {
   LoginResponse,
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly recaptchaService: RecaptchaService,
   ) {}
 
   /**
@@ -33,6 +35,13 @@ export class AuthService {
     this.logger.log(`Registering new user with email: ${registerDto.email}`);
 
     try {
+      // Verificar reCAPTCHA si el token está presente
+      if (registerDto.recaptchaToken) {
+        await this.recaptchaService.validateOrFail(
+          registerDto.recaptchaToken,
+        );
+      }
+
       // Verificar si el usuario ya existe sin lanzar excepción
       const existingUser = await this.usersService.findByEmailSafe(
         registerDto.email,
@@ -72,6 +81,11 @@ export class AuthService {
     this.logger.log(`Login attempt for email: ${loginDto.email}`);
 
     try {
+      // Verificar reCAPTCHA si el token está presente
+      if (loginDto.recaptchaToken) {
+        await this.recaptchaService.validateOrFail(loginDto.recaptchaToken);
+      }
+
       // Validar credenciales
       const user = await this.usersService.validateUser(
         loginDto.email,

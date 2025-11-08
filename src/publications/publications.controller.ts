@@ -15,8 +15,14 @@ import {
   UsePipes,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { PublicationsService } from './publications.service';
+import type { Request as ExpressRequest } from 'express';
 import {
   CreatePublicationDto,
   UpdatePublicationDto,
@@ -45,6 +51,54 @@ export class PublicationsController {
   constructor(private readonly publicationsService: PublicationsService) {}
 
   /**
+   * Subir una imagen
+   */
+  @Post('upload')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/publications',
+        filename: (req, file, cb) => {
+          const randomName = Array(16)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          const fileExt = extname(file.originalname).toLowerCase();
+          cb(null, `publication-${Date.now()}-${randomName}${fileExt}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Tipo de archivo inválido. Solo se permiten JPG, PNG y WEBP.'), false);
+        }
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('No se proporcionó ningún archivo');
+    }
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Archivo subido exitosamente',
+      data: {
+        url: `http://localhost:3000/uploads/publications/${file.filename}`,
+        filename: file.filename,
+        size: file.size,
+        mimetype: file.mimetype,
+      },
+    };
+  }
+
+  /**
    * Crear una nueva publicación
    */
   @Post()
@@ -52,7 +106,7 @@ export class PublicationsController {
   @UseGuards(JwtAuthGuard)
   async create(
     @Body() createPublicationDto: CreatePublicationDto,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(
       `Creating publication with title: ${createPublicationDto.title}`,
@@ -60,11 +114,11 @@ export class PublicationsController {
 
     const publication = await this.publicationsService.create(
       createPublicationDto,
-      req.user.id,
+      req.user!.id!,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.CREATED,
       message: PUBLICATION_SUCCESS_MESSAGES.CREATED,
       data: publication,
     };
@@ -91,7 +145,8 @@ export class PublicationsController {
     const result = await this.publicationsService.findAll(options);
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Publicaciones obtenidas exitosamente',
       data: result.data,
       meta: {
         total: result.meta.total,
@@ -108,10 +163,10 @@ export class PublicationsController {
   @Get('my-publications')
   @UseGuards(JwtAuthGuard)
   async getMyPublications(
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
     @Query() queryParams: PublicationQueryParams,
   ) {
-    this.logger.log(`Getting publications for user ID: ${req.user.id}`);
+    this.logger.log(`Getting publications for user ID: ${req.user?.id}`);
 
     const options: IFindPublicationsOptions = {
       page: queryParams.page || 1,
@@ -124,12 +179,13 @@ export class PublicationsController {
     };
 
     const result = await this.publicationsService.findByAuthor(
-      req.user.id,
+      req.user!.id!,
       options,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Mis publicaciones obtenidas exitosamente',
       data: result.data,
       meta: {
         total: result.meta.total,
@@ -165,7 +221,7 @@ export class PublicationsController {
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: `Publicaciones de la categoría: ${category}`,
       data: result.data,
       meta: {
@@ -200,7 +256,7 @@ export class PublicationsController {
     const result = await this.publicationsService.findAll(options);
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: `Publicaciones con estado: ${status}`,
       data: result.data,
       meta: {
@@ -232,7 +288,7 @@ export class PublicationsController {
     const result = await this.publicationsService.findAll(options);
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: 'Publicaciones publicadas',
       data: result.data,
       meta: {
@@ -270,7 +326,8 @@ export class PublicationsController {
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Publicaciones del autor obtenidas exitosamente',
       data: result.data,
       meta: {
         total: result.meta.total,
@@ -291,7 +348,8 @@ export class PublicationsController {
     const publication = await this.publicationsService.findOne(id);
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Publicación obtenida exitosamente',
       data: publication,
     };
   }
@@ -304,19 +362,19 @@ export class PublicationsController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePublicationDto: UpdatePublicationDto,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(`Updating publication with ID: ${id}`);
 
     const publication = await this.publicationsService.update(
       id,
       updatePublicationDto,
-      req.user.id,
-      req.user.role,
+      req.user?.id as string,
+      req.user?.role,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: PUBLICATION_SUCCESS_MESSAGES.UPDATED,
       data: publication,
     };
@@ -330,18 +388,18 @@ export class PublicationsController {
   async changeStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('status') status: PublicationStatus,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(`Changing status of publication ${id} to ${status}`);
 
     const publication = await this.publicationsService.changeStatus(
       id,
       status,
-      req.user.id,
+      req.user?.id as string,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: PUBLICATION_SUCCESS_MESSAGES.STATUS_CHANGED,
       data: publication,
     };
@@ -355,18 +413,18 @@ export class PublicationsController {
   async updateImage(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateImageDto: UpdateImageDto,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(`Updating image for publication with ID: ${id}`);
 
     const publication = await this.publicationsService.updateImage(
       id,
       updateImageDto,
-      req.user.id,
+      req.user?.id as string,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: 'Imagen de la publicación actualizada exitosamente',
       data: publication,
     };
@@ -380,17 +438,17 @@ export class PublicationsController {
   @HttpCode(HttpStatus.OK)
   async removeImage(
     @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(`Removing image from publication with ID: ${id}`);
 
     const publication = await this.publicationsService.removeImage(
       id,
-      req.user.id,
+      req.user?.id as string,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: 'Imagen de la publicación eliminada exitosamente',
       data: publication,
     };
@@ -404,17 +462,17 @@ export class PublicationsController {
   @HttpCode(HttpStatus.OK)
   async requestApproval(
     @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: any,
+    @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } },
   ) {
     this.logger.log(`Requesting approval for publication with ID: ${id}`);
 
     const publication = await this.publicationsService.requestApproval(
       id,
-      req.user.id,
+      req.user?.id as string,
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message: 'Solicitud de aprobación enviada exitosamente',
       data: publication,
     };
@@ -441,7 +499,7 @@ export class PublicationsController {
     );
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
       message:
         approveDto.status === 'publicado'
           ? 'Publicación aprobada exitosamente'
@@ -471,7 +529,8 @@ export class PublicationsController {
       await this.publicationsService.getPendingPublications(options);
 
     return {
-      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Publicaciones pendientes obtenidas exitosamente',
       data: result.data,
       meta: {
         total: result.meta.total,
@@ -488,13 +547,17 @@ export class PublicationsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+  async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: ExpressRequest & { user?: { id?: string; role?: UserRole } }) {
     this.logger.log(`Removing publication with ID: ${id}`);
 
-    await this.publicationsService.remove(id, req.user.id, req.user.role);
+    await this.publicationsService.remove(
+      id,
+      req.user?.id as string,
+      req.user?.role,
+    );
 
     return {
-      success: true,
+      statusCode: HttpStatus.NO_CONTENT,
       message: PUBLICATION_SUCCESS_MESSAGES.DELETED,
     };
   }
