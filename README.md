@@ -178,6 +178,31 @@ pnpm run start:dev
 pnpm run start:prod
 ```
 
+### 🌱 Seed de Datos (Desarrollo)
+
+Para poblar la base de datos con datos de prueba:
+
+```bash
+pnpm run seed
+```
+
+> **⚠️ IMPORTANTE - SEGURIDAD:**
+> - Las contraseñas del seed son **SOLO para desarrollo local**
+> - **NUNCA** usar estas contraseñas en producción
+> - Configurar `SEED_ADMIN_PASSWORD` y `SEED_USER_PASSWORD` en `.env` para personalizar
+> - Por defecto: `Admin123!` (admin) y `Usuario123!` (usuarios regulares)
+
+**Usuarios creados por el seed:**
+- 👑 Admin: `admin@guanavive.com`
+- 👤 Usuario 1: `usuario@guanavive.com` (Plan Premium)
+- 👤 Usuario 2: `maria@guanavive.com` (Plan Básico)
+
+**Datos incluidos:**
+- 3 usuarios con diferentes roles
+- 6 categorías culturales
+- 2 planes de suscripción
+- 20 publicaciones culturales de Guanacaste
+
 ## 🔌 API Endpoints
 
 ### 👤 Usuarios (`/users`)

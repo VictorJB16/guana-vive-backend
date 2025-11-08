@@ -1,0 +1,25 @@
+# GitGuardian configuration
+# https://docs.gitguardian.com/internal-repositories-monitoring/configuration
+
+version: 2
+
+# Paths to exclude from scanning
+paths-ignore:
+  - "**/*.md"
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/*.min.js"
+  - "**/*.map"
+
+# Minimum occurrences required to trigger a policy break
+minimum-occurrences: 2
+
+# Ignore development seed passwords (only for local development)
+# These are NOT production credentials
+matches-ignore:
+  - name: Seed development passwords
+    match: (Admin123!|Usuario123!|Maria123!)
+    paths:
+      - src/seed.ts
+      - .env.example

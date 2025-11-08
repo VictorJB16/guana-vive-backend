@@ -15,11 +15,19 @@ import { Category } from './categories/entities/category.entity';
 /**
  * Script de seed para poblar la base de datos con datos de prueba
  * Ejecutar con: pnpm run seed
+ *
+ * Contraseñas de desarrollo (cambiar en producción):
+ * - Admin: proceso.env.SEED_ADMIN_PASSWORD o 'Admin123!'
+ * - Usuarios: process.env.SEED_USER_PASSWORD o 'Usuario123!'
  */
 async function bootstrap() {
   console.log('🌱 Iniciando seed de la base de datos...\n');
 
   const app = await NestFactory.createApplicationContext(AppModule);
+
+  // Contraseñas desde variables de entorno o valores por defecto para desarrollo
+  const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'Admin123!';
+  const USER_PASSWORD = process.env.SEED_USER_PASSWORD || 'Usuario123!';
 
   try {
     const usersService = app.get(UsersService);
@@ -40,7 +48,7 @@ async function bootstrap() {
     } catch {
       adminUser = await usersService.create({
         email: 'admin@guanavive.com',
-        password: 'Admin123!',
+        password: ADMIN_PASSWORD,
         firstName: 'Admin',
         lastName: 'GuanaVive',
         role: UserRole.ADMIN,
@@ -60,7 +68,7 @@ async function bootstrap() {
     } catch {
       regularUser = await usersService.create({
         email: 'usuario@guanavive.com',
-        password: 'Usuario123!',
+        password: USER_PASSWORD,
         firstName: 'Juan',
         lastName: 'Pérez',
         role: UserRole.USER,
@@ -80,7 +88,7 @@ async function bootstrap() {
     } catch {
       regularUser2 = await usersService.create({
         email: 'maria@guanavive.com',
-        password: 'Maria123!',
+        password: USER_PASSWORD,
         firstName: 'María',
         lastName: 'Gómez',
         role: UserRole.USER,
@@ -368,16 +376,16 @@ async function bootstrap() {
     console.log('\n📋 CREDENCIALES DE ACCESO:\n');
     console.log('👤 USUARIO ADMINISTRADOR:');
     console.log('   Email:    admin@guanavive.com');
-    console.log('   Password: Admin123!');
+    console.log(`   Password: ${ADMIN_PASSWORD}`);
     console.log('   Rol:      admin\n');
     console.log('👤 USUARIO REGULAR 1:');
     console.log('   Email:    usuario@guanavive.com');
-    console.log('   Password: Usuario123!');
+    console.log(`   Password: ${USER_PASSWORD}`);
     console.log('   Rol:      user');
     console.log('   Plan:     Premium\n');
     console.log('👤 USUARIO REGULAR 2:');
     console.log('   Email:    maria@guanavive.com');
-    console.log('   Password: Maria123!');
+    console.log(`   Password: ${USER_PASSWORD}`);
     console.log('   Rol:      user');
     console.log('   Plan:     Básico\n');
     console.log('='.repeat(60));
