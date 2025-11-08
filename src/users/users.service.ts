@@ -336,20 +336,33 @@ export class UsersService {
     this.logger.log(`Validating user credentials for email: ${email}`);
 
     try {
-      const user = (await this.findByEmail(email, true)) as User;
-      const isPasswordValid = await user.validatePassword(password);
+      // Buscar usuario directamente desde el repositorio para asegurar que sea una instancia de User
+      const user = await this.userRepository.findOne({ where: { email } });
 
-      if (isPasswordValid && user.isActive) {
-        this.logger.log(`User validation successful for email: ${email}`);
-        return this.transformToSafeUser(user);
+      if (!user) {
+        this.logger.warn(`User not found with email: ${email}`);
+        return null;
       }
 
-      this.logger.warn(`User validation failed for email: ${email}`);
-      return null;
+      // Validar contraseña
+      const isPasswordValid = await user.validatePassword(password);
+
+      if (!isPasswordValid) {
+        this.logger.warn(`Invalid password for email: ${email}`);
+        return null;
+      }
+
+      if (!user.isActive) {
+        this.logger.warn(`User is inactive for email: ${email}`);
+        return null;
+      }
+
+      this.logger.log(`User validation successful for email: ${email}`);
+      return this.transformToSafeUser(user);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.warn(
+      this.logger.error(
         `User validation error for email: ${email}`,
         errorMessage,
       );
