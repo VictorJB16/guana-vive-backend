@@ -13,11 +13,8 @@ export enum PublicationCategory {
  * Estados disponibles para las publicaciones
  */
 export enum PublicationStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  PENDING_REVIEW = 'PENDING_REVIEW',
   DRAFT = 'borrador',
   PUBLISHED = 'publicado',
   ARCHIVED = 'archivado',
+  PENDING_REVIEW = 'pendiente_revision',
 }
